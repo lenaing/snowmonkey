@@ -34,6 +34,10 @@
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -42,5 +46,6 @@
 #include <stdint.h>
 #include <errno.h>
 #include <assert.h>
+#include <unistd.h>
 
 #endif /* __GLOBALS_H */

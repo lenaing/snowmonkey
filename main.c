@@ -33,230 +33,72 @@
  */
 #include "config.h"
 #include "globals.h"
-
-#include <math.h>
-#include <libonsen/plugin.h>
-#include <libonsen/archive_plugin.h>
-#include <libonsen/string_utils.h>
-#include <libonsen/file_utils.h>
+#include "context.h"
+#include "freedesktop.h"
+#include "plugins.h"
+#include "file.h"
+#include "actions.h"
+#include "cli.h"
 #include <libonsen/onsen.h>
+
+#define LIBONSEN_VERBOSITY 5
+
+Context_t *context;
 
 void start()
 {
     /* Get an unbuffered output. */
     setbuf(stdout, NULL);
-    fprintf(stdout, "\n");
-    fprintf(stdout, "            @(⌒⌒ )@            \n\n");
-    fprintf(stdout, "       Snow Monkey v%d.%d%s      \n",
-                    SM_VERSION_MAJOR,
-                    SM_VERSION_MINOR,
-                    SM_VERSION_RELEASE);
-    fprintf(stdout, "--------------------------------\n");
-    onsen_init();
+    setbuf(stderr, NULL);
+
+    if (context->bVerbose) {
+        fprintf(stdout, "            @(⌒⌒ )@            \n\n");
+        fprintf(stdout, "       Snow Monkey v%d.%d%s      \n",
+                        SM_VERSION_MAJOR,
+                        SM_VERSION_MINOR,
+                        SM_VERSION_RELEASE);
+        fprintf(stdout, "--------------------------------\n");
+    }
+    onsen_init(LIBONSEN_VERBOSITY);
+
 }
 
 void stop()
 {
-    fprintf(stdout, "--------------------------------\n");
-    fprintf(stdout, " Snow monkey ended successfully! \n");
-    fprintf(stdout, "            @(⌒_⌒)@            \n\n");
+    if (context->bVerbose) {
+        fprintf(stdout, "---------------------------------\n");
+        fprintf(stdout, " Snow monkey ended successfully! \n");
+        fprintf(stdout, "            @(⌒_⌒)@              \n");
+    }
 }
 
-double round(double d)
+void run() {
+    comply_to_freedesktop_specs();
+    load_plugins();
+
+    if (context->bVerbose) {
+        fprintf(stdout, "|   Successfully loaded %d plugins.\n",
+                context->iPluginsCount);
+    }
+
+    load_file();
+    if (0 == check_fileformat_supported_by_plugins()) {
+        if (context->bList) {
+            doList();
+        }
+    }
+    unload_file();
+    unload_plugins();
+}
+
+
+int main(int argc, char *argv[])
 {
-  return floor(d + 0.5);
-}
-
-void progress(int total, int current, void *data) {
-
-   
-    int progressBarWidth;
-    float f;
-    int iPos;
-    int iProgressChars;
-
-    (void) data;
-    iPos = 0;
-    progressBarWidth=40;
-
-    f = (float)current / (float)total;
-    
-    iProgressChars = round(f * progressBarWidth);
-    
-    printf("[");
-   
-    for ( ; iPos < iProgressChars; iPos++) {
-        printf("*");
-    }
-   
-    for ( ; iPos < progressBarWidth; iPos++) {
-        printf("-");
-    }
-   
-    printf("] %3.0f%%\r", f*100);
-    if (total == current) {
-        printf("\n");
-    }
-    fflush(stdout);
-}
-
-
-
-int main(/*int argc, char *argv[]*/)
-{
-    OnsenPlugin_t *pPlugin;
-    OnsenArchivePlugin_t *pInstance;
-    OnsenArchiveInfo_t *pInfo;
-    OnsenArchiveEntry_t *pEntry;
-
-    FILE *pFile;
-    int rc;
-    int i, j;
-    int writeToDisk = 0;
-
-    char *szPlugin = "plugins/dummy.so";
-    char *szSrcFile = "/home/lenain/dummy.bod";
-    char *szPath = "/home/lenain/tmp/";
-    char *szPath2 = "/home/lenain/tmp2/";
-    char *szDestFilename;
-    char *szOutputDir;
-
+    parse_options(argc, argv);
+    initialize_context();
     start();
-
-    /* Load plugin */
-    pPlugin = onsen_new_plugin();
-    rc = onsen_load_plugin(pPlugin, szPlugin);
-    if (rc != 0) {
-        /* Failed to load plugin. Abort! ABORT! */
-        onsen_unload_plugin(pPlugin);
-        onsen_free_plugin(pPlugin);
-        onsen_err_critical("Failed to load plugin file '%s'. Aborting.",
-                           szPlugin);
-    }
-
-    pFile = onsen_open_file(szSrcFile,"rb");
-    if (NULL == pFile) {
-        /* Failed to open given file. */
-        onsen_unload_plugin(pPlugin);
-        onsen_free_plugin(pPlugin);
-        onsen_err_critical("Failed to open file '%s'. Aborting.", szSrcFile);
-    }
-
-    rc = pPlugin->isFileSupported(szSrcFile, 0, pFile);
-    if (0 == rc) {
-        onsen_out_ok("File '%s' is supported!", szSrcFile);
-    } else {
-        /* File is unsupported. */
-        onsen_unload_plugin(pPlugin);
-        onsen_free_plugin(pPlugin);
-        onsen_err_critical("File '%s' is NOT supported. Aborting", szSrcFile);
-    }
-
-    /* onsen_get_archive_info example ----------------------------------------*/
-    onsen_err_warning("");
-    onsen_err_warning("Example of onsen_get_archive_info usage :");
-    onsen_err_warning("");
-
-    /* Retrieve archive info */
-    pInfo = onsen_new_archive_info();
-    pInstance = pPlugin->pInstance;
-    pInstance->getArchiveInfo(szSrcFile, 0, 0, pInfo);
-
-    /* Print archive info */
-    onsen_out_ok("Archive size = %ld", pInfo->lArchiveFileSize);
-    onsen_out_ok("Archive entries count = %d", pInfo->iArchiveEntriesCount);
-    onsen_out_ok("");
-
-    /* For each file in archive, print info */
-    for (i = 0; i < pInfo->iArchiveEntriesCount; i++) {
-
-        if (NULL == pInfo->a_pArchiveEntries) {
-            /* No archive entry defined. Stop here.*/
-            break;
-        }
-
-        pEntry = pInfo->a_pArchiveEntries[i];
-        if (NULL == pEntry) {
-            /* Invalid entry, check next. */
-            continue;
-        }
-
-        onsen_out_ok("File '%s' :", pEntry->szFilename);
-        onsen_out_ok("\t Size : %d", pEntry->iSize);
-        onsen_out_ok("\t Commpressed size : %d", pEntry->iCompressedSize);
-        onsen_out_ok("\t Encrypted : %s", (pEntry->bEncrypted) ? "yes" : "no");
-        onsen_out_ok("\t Compressed : %s", (pEntry->bCompressed) ? "yes" : "no");
-        onsen_out_ok("\t Additional fields :");
-        for (j = 0; j < pEntry->iAddlFdsCount; j++) {
-            if (NULL != pEntry->a_szAddlFds[j]) {
-                onsen_out_ok("\t\t %s : %s", pInfo->a_pArchiveEntries[pInfo->iArchiveEntriesCount]->a_szAddlFds[j], pEntry->a_szAddlFds[j]);
-            }
-        }
-
-        if (writeToDisk) {
-            /* Correct filename for an UNIX system. */
-            szDestFilename = onsen_build_filename(szPath, pEntry->szFilename);
-            onsen_str_chr_replace(szDestFilename,'\\', '/');
-
-            /* Build directory tree. */
-            szOutputDir = onsen_basedir(szDestFilename);
-            onsen_mkdir(szOutputDir);
-
-            /* Write file to disk. */
-            pInstance->writeFile(szSrcFile, 0, pEntry->iOffset, pEntry->iSize, szDestFilename, 0, progress, NULL);
-
-            /* Free path and filename */
-            onsen_free(szOutputDir);
-            onsen_free(szDestFilename);
-        }
-    }
-
-    onsen_free_archive_info(pInfo);
-
-    /* onsen_get_file_info example -------------------------------------------*/
-    onsen_err_warning("");
-    onsen_err_warning("Example of onsen_get_file_info usage :");
-    onsen_err_warning("");
-
-    pEntry = onsen_new_archive_entry();
-    rc = pInstance->getFileInfo(szSrcFile, 0, "blah0", 0, pEntry);
-
-    if (0 == rc) {
-        onsen_out_ok("File '%s' :", pEntry->szFilename);
-        onsen_out_ok("\t Size : %d", pEntry->iSize);
-        onsen_out_ok("\t Commpressed size : %d", pEntry->iCompressedSize);
-        onsen_out_ok("\t Encrypted : %s", (pEntry->bEncrypted) ? "yes" : "no");
-        onsen_out_ok("\t Compressed : %s", (pEntry->bCompressed) ? "yes" : "no");
-        onsen_out_ok("\t Additional fields :");
-        for (j = 0; j < pEntry->iAddlFdsCount; j++) {
-            if (NULL != pEntry->a_szAddlFds[j]) {
-                onsen_out_ok("\t\t %s : %s", "CRC", pEntry->a_szAddlFds[j]);
-            }
-        }
-
-        if (writeToDisk) {
-            /* Correct filename for an UNIX system. */
-            szDestFilename = onsen_build_filename(szPath2, pEntry->szFilename);
-            onsen_str_chr_replace(szDestFilename,'\\', '/');
-
-            /* Build directory tree. */
-            szOutputDir = onsen_basedir(szDestFilename);
-            onsen_mkdir(szOutputDir);
-
-            /* Write file to disk. */
-            pInstance->writeFile(szSrcFile, 0, pEntry->iOffset, pEntry->iSize, szDestFilename, 0, progress, NULL);
-
-            /* Free path and filename */
-            onsen_free(szOutputDir);
-            onsen_free(szDestFilename);
-        }
-    }
-    
-    onsen_free_archive_entry(pEntry);
-    onsen_unload_plugin(pPlugin);
-    onsen_free_plugin(pPlugin);
-
-    onsen_close_file(pFile);
+    run();
     stop();
+    end_context();
     return EXIT_SUCCESS;
 }

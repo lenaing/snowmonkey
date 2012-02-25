@@ -57,6 +57,14 @@ INCLUDE_DIRECTORIES(
 SET(
     snowmonkey_SRCS
         main.c
+        cli.c
+        actions.c
+        file.c
+        plugins.c
+        datafiles.c
+        context.c
+        freedesktop.c
+        string_utils.c
 )
 
 # Need link to libonsen
@@ -67,4 +75,4 @@ SET(ONSEN_LIB onsen)
 # Usual stuff
 ADD_DEFINITIONS(-W -Wall -ansi -pedantic)
 ADD_EXECUTABLE(snowmonkey ${snowmonkey_SRCS})
-TARGET_LINK_LIBRARIES(snowmonkey ${ONSEN_LIB} dl m)
+TARGET_LINK_LIBRARIES(snowmonkey ${ONSEN_LIB} dl)
