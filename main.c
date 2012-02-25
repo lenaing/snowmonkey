@@ -33,12 +33,12 @@
  */
 #include "config.h"
 #include "globals.h"
+#include "cli.h"
 #include "context.h"
 #include "freedesktop.h"
 #include "plugins.h"
 #include "file.h"
 #include "actions.h"
-#include "cli.h"
 #include <libonsen/onsen.h>
 
 #define LIBONSEN_VERBOSITY 5
@@ -95,10 +95,10 @@ void run() {
 int main(int argc, char *argv[])
 {
     parse_options(argc, argv);
-    initialize_context();
+    initialize_cli_context();
     start();
     run();
     stop();
-    end_context();
+    end_cli_context();
     return EXIT_SUCCESS;
 }

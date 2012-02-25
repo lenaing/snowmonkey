@@ -167,7 +167,7 @@ parse_options(int argc, char *argv[])
 }
 
 void
-initialize_context()
+initialize_cli_context()
 {
     context = new_context();
     context->szArchiveFilename = szOptionArchiveFilename;
@@ -177,7 +177,7 @@ initialize_context()
 }
 
 void
-end_context()
+end_cli_context()
 {
     free_context(context);
 }
