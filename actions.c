@@ -16,9 +16,10 @@ doList()
 
     /* Print archive info */
     if (context->bVerbose) {
-        fprintf(stdout, "|   Archive size = %ld\n", pInfo->lArchiveFileSize);
-        fprintf(stdout, "|   Archive entries count = %d\n", pInfo->iArchiveEntriesCount);
-        fprintf(stdout, "|\n");
+        printf("|   Archive filename = %s\n", context->szInputFilename);
+        printf("|   Archive size = %ld bytes\n", pInfo->lArchiveFileSize);
+        printf("|   Archive entries count = %d\n", pInfo->iArchiveEntriesCount);
+        printf("|\n");
     }
 
     switch(pInfo->eArchiveFilenamesEncoding) {
@@ -30,9 +31,36 @@ doList()
         };
     }
 
+    if (NULL == pInfo->a_pArchiveEntries[0]) {
+        printf("argh\n");
+    }
+
+    if (context->bVerbose) {
+        printf("%12s", "Offset");
+        printf("%12s", "Size");
+        printf("%12s", "Compressed");
+        printf("%12s", "Comp. Size");
+        printf("%12s", "Encrypted");
+        for (i = 0; i < pInfo->a_pArchiveEntries[0]->iAddlFdsCount; i++) {
+            printf("%12s", pInfo->a_pArchiveEntries[0]->a_szAddlFds[i]);
+        }
+        printf("%s", "  Name");
+        printf("\n");
+        printf("%12s", "-----------");
+        printf("%12s", "-----------");
+        printf("%12s", "-----------");
+        printf("%12s", "-----------");
+        printf("%12s", "-----------");
+        for (i = 0; i < pInfo->a_pArchiveEntries[0]->iAddlFdsCount; i++) {
+            printf("%12s", "-----------");
+        }
+        printf("%s", "  ------------------");
+        printf("\n");
+    }
+
 
     /* For each file in archive, print info */
-    for (i = 0; i < pInfo->iArchiveEntriesCount; i++) {
+    for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
 
         if (NULL == pInfo->a_pArchiveEntries) {
             /* No archive entry defined. Stop here.*/
@@ -45,36 +73,35 @@ doList()
             continue;
         }
 
-        if (pIconv != NULL) {
-            
+        /* TODO : Adapt to field size? */
+        if (context->bVerbose) {
+            printf(" %011X", pEntry->iOffset);
+            printf("%12d", pEntry->iSize);
+            printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
+            printf("%12d", pEntry->iCompressedSize);
+            printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
+            if (0 != pEntry->iAddlFdsCount) {
+                for (j = 0; j < pEntry->iAddlFdsCount; j++) {
+                    if (NULL != pEntry->a_szAddlFds[j]) {
+                        printf("%12s", pEntry->a_szAddlFds[j]);
+                    }
+                }
+            }
         }
 
         switch(pInfo->eArchiveFilenamesEncoding) {
             case SHIFT_JIS : {
                 szTmpDestFilename = onsen_shift_jis2utf8(pIconv, pEntry->szFilename);
-                printf("%s\n", szTmpDestFilename);
+                printf("  %s\n", szTmpDestFilename);
                 free(szTmpDestFilename);
                 break;
             };
             default : {
-                printf("%s\n", pEntry->szFilename);
+                printf("  %s\n", pEntry->szFilename);
             };
         }
 
-        if (context->bVerbose) {
-            fprintf(stdout, "| Offset : %04X\n", pEntry->iOffset);
-            fprintf(stdout, "| Size : %d\n", pEntry->iSize);
-            fprintf(stdout, "| Compressed size : %d\n", pEntry->iCompressedSize);
-            fprintf(stdout, "| Encrypted : %s\n", (pEntry->bEncrypted) ? "yes" : "no");
-            fprintf(stdout, "| Compressed : %s\n", (pEntry->bCompressed) ? "yes" : "no");
-            fprintf(stdout, "| Additional fields :\n");
-            for (j = 0; j < pEntry->iAddlFdsCount; j++) {
-                if (NULL != pEntry->a_szAddlFds[j]) {
-                    fprintf(stdout, "|\t %s : %s\n", pInfo->a_pArchiveEntries[pInfo->iArchiveEntriesCount]->a_szAddlFds[j], pEntry->a_szAddlFds[j]);
-                }
-            }
-            fprintf(stdout, "|\n");
-        }
+
     }
     if (pIconv != NULL) {
         onsen_iconv_cleanup(pIconv);
