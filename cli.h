@@ -18,7 +18,9 @@ int bOptionPrintVersion;
 int bOptionVerbose;
 int bOptionExtract;
 int bOptionList;
-char *szOptionArchiveFilename;
+char *szOptionInputFilename;
+char *szOptionPluginsFilenames;
+char *szOptionPluginsDirs;
 
 void initialize_cli_context();
 void end_cli_context();

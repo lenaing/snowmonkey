@@ -7,9 +7,9 @@ get_data_dirs() {
     
     char *token;
     char *delimiters = ":";
-    
+    char *saved;
 
-    dataDirs = calloc(4096, sizeof(char));
+    dataDirs = calloc(MAX_STRING_LENGTH, sizeof(char));
 
     /* Parse XDG_DATA_HOME first. */
     xdgTmp = getenv("XDG_DATA_HOME");
@@ -22,7 +22,7 @@ get_data_dirs() {
 
     /* Parse XDG_DATA_DIRS now. */
     xdgTmp = getenv("XDG_DATA_DIRS");
-    token = strtok(xdgTmp, delimiters);
+    token = strtok_r(xdgTmp, delimiters, &saved);
     while (NULL != token) {
         strcat(dataDirs, ":");
         strcat(dataDirs, token);
@@ -32,55 +32,67 @@ get_data_dirs() {
         }
         strcat(dataDirs, "snowmonkey/");
 
-        token = strtok(NULL, delimiters);
+        token = strtok_r(NULL, delimiters, &saved);
     }
 
     return dataDirs;
 }
 
 char **
-find_data_files(char *search) {
+find_data_files(char *search, char *dataDirs) {
     int i;
     int count = 0;
     wordexp_t mots;
-    char *dataDirs;
     char *tmpDir;
     char *curDir;
     char *delimiters = ":";
-    struct stat st;
+    char *saved;
+    
     char **filenames;
     char *filename;
 
-    filenames = calloc(255, sizeof(char *));
-    tmpDir = calloc(4096, sizeof(char));
-    dataDirs = get_data_dirs();
+    filenames = calloc(MAX_SEARCH_RESULTS, sizeof(char *));
+    tmpDir = calloc(MAX_STRING_LENGTH, sizeof(char));
 
-    curDir = strtok(dataDirs, delimiters);
+    curDir = strtok_r(dataDirs, delimiters, &saved);
     strcat(tmpDir, curDir);
+    if (! is_slashed(curDir)) {
+        strcat(tmpDir, "/");
+    }
     strcat(tmpDir, search);
+
     wordexp(tmpDir, &mots, WRDE_NOCMD);
     while (NULL != curDir) {
-        curDir = strtok(NULL, delimiters);
+        curDir = strtok_r(NULL, delimiters, &saved);
         if (NULL != curDir) {
             tmpDir[0] = '\0';
             strcat(tmpDir, curDir);
+            if (! is_slashed(curDir)) {
+                strcat(tmpDir, "/");
+            }
             strcat(tmpDir, search);
             wordexp(tmpDir, &mots, WRDE_APPEND|WRDE_NOCMD);
         }
     }
 
-
     for (i = 0; i < (int)((&mots)->we_wordc); i++) {
         filename = ((&mots)->we_wordv)[i];
-        if (-1 == stat(filename, &st)) {
-        } else {
-            filenames[count] = onsen_strdup(filename);
-            count++;
+        if (0 == file_exists(filename)) {
+            filenames[count++] = onsen_strdup(filename);
         }
     }
     filenames[count] = NULL;
     wordfree(&mots);
-    free(dataDirs);
     free(tmpDir);
     return filenames;
+}
+
+
+int file_exists(char *filename) {
+    struct stat st;
+    if (-1 == stat(filename, &st)) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

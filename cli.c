@@ -34,26 +34,36 @@ Examples:\n\
     /* Help on options. */
 #ifdef HAS_LONG_OPT
     static char const helpOptions[] = "\
- Device selection and switching:\n\n\
-  -f, --file=ARCHIVE         Use archive file or device ARCHIVE.\n\n\
- Informative output:\n\n\
-  -v, --verbose              Verbosely list files processed.\n\n\
  Main operation mode:\n\n\
   -t, --list                 List the contents of an archive.\n\
-  -x, --extract              Extract files from an archive.\n\n\
+  -x, --extract, --get       Extract files from an archive.\n\n\
+ Device selection and switching:\n\n\
+  -f, --file=ARCHIVE         Use archive file or device ARCHIVE.\n\n\
+ Plugins selection:\n\n\
+  -p, --plugins              Load plugins only if they match specified\n\
+                             filenames.\n\
+  -P, --plugins-dir          Search plugins only in specified directories.\n\n\
+";
+    static char const helpOptions2[] = "\
+ Informative output:\n\n\
+  -v, --verbose              Verbosely list files processed.\n\n\
  Other options:\n\n\
   -h, -?, --help             Give this help list.\n\
           --usage            Give a short usage message.\n\
           --version          Print program version.\n\n";
 #else
     static char const helpOptions[] = "\
- Device selection and switching:\n\n\
-  -f                         Use archive file or device ARCHIVE.\n\n\
- Informative output:\n\n\
-  -v                         Verbosely list files processed.\n\n\
  Main operation mode:\n\n\
   -t                         List the contents of an archive.\n\
   -x                         Extract files from an archive.\n\n\
+ Device selection and switching:\n\n\
+  -f                         Use archive file or device ARCHIVE.\n\n\
+ Plugins selection:\n\n\
+  -p                         Load plugins only if they match specified\n\
+                             filenames.\n\
+  -P                         Search plugins only in specified directories.\n\n\
+ Informative output:\n\n\
+  -v                         Verbosely list files processed.\n\n\
  Other options:\n\n\
   -h, -?                     Give this help list.\n\n";
 #endif
@@ -62,6 +72,9 @@ Examples:\n\
     static char const helpEnd[] = "Report bugs to <lenaing@gmail.com>.\n";
     fprintf(stderr, help);
     fprintf(stderr, helpOptions);
+#ifdef HAS_LONG_OPT
+    fprintf(stderr, helpOptions2);
+#endif
     fprintf(stderr, helpEnd);
 }
 
@@ -72,7 +85,8 @@ usage()
     static char const optionsUsage[] = "\
             [--file]\n\
             [--verbose]\n\
-            [--list] [--extract]\n\
+            [--list] [--extract] [--get]\n\
+            [--plugins] [--plugins-dir]\n\
             [--help] [--usage] [--version]\n";
 #endif
     fprintf(stderr, "Usage: snowmonkey [-txhv?] [-f ARCHIVE]\n");
@@ -85,16 +99,17 @@ usage()
 void
 parse_options(int argc, char *argv[])
 {
-    char *options = ":f:hp:tvx";
+    char *options = ":f:hp:P:tvx";
     int option;
     int error = 0;
 #ifdef HAS_LONG_OPT
     int optionIndex = 0;
     static struct option longOptions[] = {
         { "extract", 0, NULL, 'x' },
-        { "file",    0, NULL, 'f' },
-        /* TODO { "plugins", 0, NULL, 'p' }, */
-        /* TODO { "plugins-dir", 0, NULL, 'P' }, */
+        { "get",     0, NULL, 'x' },
+        { "file",    1, NULL, 'f' },
+        { "plugins", 1, NULL, 'p' },
+        { "plugins-dirs", 1, NULL, 'P' },
         { "help",    0, NULL, 'h' },
         { "list",    0, NULL, 't' },
         { "usage",   0, &bOptionPrintUsage, 1 },
@@ -129,19 +144,26 @@ parse_options(int argc, char *argv[])
 
         /* Check option. */
         switch (option) {
-            case 'f' :
-                if (NULL == szOptionArchiveFilename) {
-                    szOptionArchiveFilename = optarg;
+            case 'f' : {
+                if (NULL == szOptionInputFilename) {
+                    szOptionInputFilename = optarg;
                 } else {
                     error = 1;
                     fprintf(stderr, "Error : You can only specify one archive.\n");
                 }
+            }
+                break;
+            case 'p' :
+                szOptionPluginsFilenames = optarg;
+                break;
+            case 'P' : 
+                szOptionPluginsDirs = optarg;
                 break;
             case 't' :
                 bOptionList = 1;
                 break;
             case 'v' :
-                bOptionVerbose++;
+                bOptionVerbose = 1;
                 break;
             case 'x' :
                 bOptionExtract = 1;
@@ -170,7 +192,9 @@ void
 initialize_cli_context()
 {
     context = new_context();
-    context->szArchiveFilename = szOptionArchiveFilename;
+    context->szInputFilename = szOptionInputFilename;
+    context->szPluginsFilenames = szOptionPluginsFilenames;
+    context->szPluginsDirs = szOptionPluginsDirs;
     context->bExtract = bOptionExtract;
     context->bList = bOptionList;
     context->bVerbose = bOptionVerbose;

@@ -6,8 +6,8 @@ new_context()
     Context_t *pContext;
     pContext = malloc(sizeof(Context_t));
 
-    pContext->szArchiveFilename = NULL;
-    pContext->pArchiveFile = NULL;
+    pContext->szInputFilename = NULL;
+    pContext->pInputFile = NULL;
 
     pContext->pPlugins = NULL;
     pContext->iPluginsCount = 0;
@@ -23,7 +23,6 @@ void
 free_context(Context_t *pContext)
 {
     if (NULL != pContext) {
-        /* TODO. */
         free(pContext);
     }
 }

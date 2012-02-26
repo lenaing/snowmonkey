@@ -41,7 +41,6 @@ PROJECT(SnowMonkey)
 SET(SM_VERSION_MAJOR 0)
 SET(SM_VERSION_MINOR 1)
 SET(SM_VERSION_RELEASE "a")
-SET(SM_VERSION_CODENAME "'Slippery Steel'")
 
 CONFIGURE_FILE(
     "${PROJECT_SOURCE_DIR}/config.h.in"
@@ -74,5 +73,6 @@ SET(ONSEN_LIB onsen)
 
 # Usual stuff
 ADD_DEFINITIONS(-W -Wall -ansi -pedantic)
+ADD_DEFINITIONS(-DHAS_LONG_OPT)
 ADD_EXECUTABLE(snowmonkey ${snowmonkey_SRCS})
 TARGET_LINK_LIBRARIES(snowmonkey ${ONSEN_LIB} dl)

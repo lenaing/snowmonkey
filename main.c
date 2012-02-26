@@ -74,20 +74,33 @@ void stop()
 
 void run() {
     comply_to_freedesktop_specs();
-    load_plugins();
+    load_plugins(context->szPluginsFilenames, context->szPluginsDirs);
 
     if (context->bVerbose) {
         fprintf(stdout, "|   Successfully loaded %d plugins.\n",
                 context->iPluginsCount);
     }
 
-    load_file();
-    if (0 == check_fileformat_supported_by_plugins()) {
-        if (context->bList) {
-            doList();
+    if (0 == context->iPluginsCount) {
+        fprintf(stdout, "|   No plugin loaded, can't open a file without a plugin...\n");
+        
+    } else {
+        if (0 == file_exists(context->szInputFilename)) {
+            if (0 == check_fileformat_supported_by_plugins()) {
+                load_file();
+                if (context->bList) {
+                    doList();
+                }
+                unload_file();
+            }
+        } else {
+            if (NULL == context->szInputFilename) {
+                printf("No input file specified!\n");
+            } else {
+                printf("Unable to open file '%s'!\n", context->szInputFilename);
+            }
         }
     }
-    unload_file();
     unload_plugins();
 }
 

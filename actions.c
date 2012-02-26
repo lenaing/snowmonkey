@@ -12,7 +12,7 @@ doList()
     /* Retrieve archive info */
     pInfo = onsen_new_archive_info();
     pInstance = context->pPlugins[0]->pInstance;
-    pInstance->getArchiveInfo(1, context->pArchiveFile, context->lArchiveFileSize, pInfo);
+    pInstance->getArchiveInfo(1, context->pInputFile, context->lInputFileSize, pInfo);
 
     /* Print archive info */
     if (context->bVerbose) {
