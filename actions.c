@@ -87,17 +87,18 @@ doList()
                     }
                 }
             }
+            printf("  ");
         }
 
         switch(pInfo->eArchiveFilenamesEncoding) {
             case SHIFT_JIS : {
                 szTmpDestFilename = onsen_shift_jis2utf8(pIconv, pEntry->szFilename);
-                printf("  %s\n", szTmpDestFilename);
+                printf("%s\n", szTmpDestFilename);
                 free(szTmpDestFilename);
                 break;
             };
             default : {
-                printf("  %s\n", pEntry->szFilename);
+                printf("%s\n", pEntry->szFilename);
             };
         }
 
