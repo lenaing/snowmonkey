@@ -1,7 +1,7 @@
 #include "datafiles.h"
 
 char *
-get_data_dirs() {
+get_data_dirs(char *component) {
     char *xdgTmp;
     char *dataDirs;
     
@@ -18,7 +18,8 @@ get_data_dirs() {
     if (! is_slashed(xdgTmp)) {
         strcat(dataDirs, "/");
     }
-    strcat(dataDirs, "snowmonkey/");
+    strcat(dataDirs, component);
+    strcat(dataDirs, "/");
 
     /* Parse XDG_DATA_DIRS now. */
     xdgTmp = getenv("XDG_DATA_DIRS");
@@ -30,7 +31,8 @@ get_data_dirs() {
         if (! is_slashed(token)) {
             strcat(dataDirs, "/");
         }
-        strcat(dataDirs, "snowmonkey/");
+        strcat(dataDirs, component);
+        strcat(dataDirs, "/");
 
         token = strtok_r(NULL, delimiters, &saved);
     }

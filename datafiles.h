@@ -11,7 +11,7 @@
 #define MAX_SEARCH_RESULTS 255
 #define MAX_STRING_LENGTH 4096
 
-char *get_data_dirs();
+char *get_data_dirs(char *);
 char **find_data_files(char *, char *);
 int file_exists(char *);
 

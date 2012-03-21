@@ -56,7 +56,7 @@ load_plugins(char *szPluginsNames, char *szPluginsDirs)
     if (NULL == szPluginsDirs) {
         /* No plugins directories specified, look in every available 
          * directories. */
-        szDataDirs = get_data_dirs();
+        szDataDirs = get_data_dirs("libonsen");
     } else {
         /* Look in given directories. */
         szDataDirs = szPluginsDirs;
