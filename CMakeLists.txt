@@ -47,11 +47,6 @@ CONFIGURE_FILE(
     "${PROJECT_SOURCE_DIR}/config.h"
 )
 
-# Need libonsen headers. We expect to find them in ../inc/
-INCLUDE_DIRECTORIES(
-    "${PROJECT_SOURCE_DIR}/../inc/"
-)
-
 # Sources
 SET(
     snowmonkey_SRCS
@@ -67,8 +62,6 @@ SET(
 )
 
 # Need link to libonsen
-# TODO : unlink dirs
-LINK_DIRECTORIES(${LINK_DIRECTORIES} ../../dist/lib/)
 SET(ONSEN_LIB onsen)
 
 # Usual stuff
@@ -76,3 +69,5 @@ ADD_DEFINITIONS(-W -Wall -ansi -pedantic)
 ADD_DEFINITIONS(-DHAS_LONG_OPT)
 ADD_EXECUTABLE(snowmonkey ${snowmonkey_SRCS})
 TARGET_LINK_LIBRARIES(snowmonkey ${ONSEN_LIB} dl)
+
+INSTALL(TARGETS snowmonkey DESTINATION bin)
