@@ -3,38 +3,51 @@
 char *
 get_data_dirs(char *component) {
     char *xdgTmp;
+    char *envTmp;
     char *dataDirs;
     
-    char *token;
+    char *token = NULL;
     char *delimiters = ":";
-    char *saved;
+    char *saved = NULL;
 
     dataDirs = calloc(MAX_STRING_LENGTH, sizeof(char));
 
     /* Parse XDG_DATA_HOME first. */
     xdgTmp = getenv("XDG_DATA_HOME");
-    strcat(dataDirs, xdgTmp);
+    if (NULL != xdgTmp) {
+        strcat(dataDirs, xdgTmp);
 
-    if (! is_slashed(xdgTmp)) {
+        if (! is_slashed(xdgTmp)) {
+            strcat(dataDirs, "/");
+        }
+
+        strcat(dataDirs, component);
         strcat(dataDirs, "/");
     }
-    strcat(dataDirs, component);
-    strcat(dataDirs, "/");
 
     /* Parse XDG_DATA_DIRS now. */
     xdgTmp = getenv("XDG_DATA_DIRS");
-    token = strtok_r(xdgTmp, delimiters, &saved);
-    while (NULL != token) {
-        strcat(dataDirs, ":");
-        strcat(dataDirs, token);
+    if (NULL != xdgTmp) {
 
-        if (! is_slashed(token)) {
-            strcat(dataDirs, "/");
+        envTmp = onsen_strdup(xdgTmp);
+        if (NULL != envTmp) {
+
+            token = strtok_r(envTmp, delimiters, &saved);
+            while (NULL != token) {
+                strcat(dataDirs, ":");
+                strcat(dataDirs, token);
+
+                if (! is_slashed(token)) {
+                    strcat(dataDirs, "/");
+                }
+                strcat(dataDirs, component);
+                strcat(dataDirs, "/");
+
+                token = strtok_r(NULL, delimiters, &saved);
+            }
+
+            onsen_free(envTmp);
         }
-        strcat(dataDirs, component);
-        strcat(dataDirs, "/");
-
-        token = strtok_r(NULL, delimiters, &saved);
     }
 
     return dataDirs;
