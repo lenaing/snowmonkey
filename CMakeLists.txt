@@ -3,7 +3,7 @@
 # 
 # snowmonkey :
 # ------------
-# This software is a libonsen CLI interface under heavy development.
+# This software is a libonsen CLI interface.
 # 
 # This software is governed by the CeCILL license under French law and
 # abiding by the rules of distribution of free software.  You can  use, 
@@ -43,22 +43,22 @@ SET(SM_VERSION_MINOR 1)
 SET(SM_VERSION_RELEASE "a")
 
 CONFIGURE_FILE(
-    "${PROJECT_SOURCE_DIR}/config.h.in"
-    "${PROJECT_SOURCE_DIR}/config.h"
+    "${PROJECT_SOURCE_DIR}/src/config.h.in"
+    "${PROJECT_SOURCE_DIR}/src/config.h"
 )
 
 # Sources
 SET(
     snowmonkey_SRCS
-        main.c
-        cli.c
-        actions.c
-        file.c
-        plugins.c
-        datafiles.c
-        context.c
-        freedesktop.c
-        string_utils.c
+        src/main.c
+        src/cli.c
+        src/actions.c
+        src/file.c
+        src/plugins.c
+        src/datafiles.c
+        src/context.c
+        src/freedesktop.c
+        src/string_utils.c
 )
 
 # Need link to libonsen
