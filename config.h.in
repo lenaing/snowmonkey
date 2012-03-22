@@ -1,9 +1,9 @@
 /*
- * Copyright 2011 - Etienne 'lenaing' GIRONDEL <lenaing@gmail.com>
+ * Copyright 2011, 2012 - Etienne 'lenaing' GIRONDEL <lenaing@gmail.com>
  * 
  * snowmonkey :
  * ------------
- * This software is a libonsen CLI interface under heavy development.
+ * This software is a libonsen CLI interface.
  * 
  * This software is governed by the CeCILL license under French law and
  * abiding by the rules of distribution of free software.  You can  use, 
