@@ -42,7 +42,9 @@ version()
 {
     static char const version[] = "snowmonkey v%d.%d%s\n\
 Copyright (C) 2011 Etienne 'lenaing' Girondel.\n\
-BSD License: <http://www.opensource.org/licenses/bsd-license.php>.\n\
+CeCILL License: \n\
+    FR : <http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt>.\n\
+    EN : <http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt>.\n\
 This is free software: you are free to change and redistribute it.\n\
 \n\
 Written by Etienne 'lenaing' Girondel <lenaing@gmail.com>.\n";
