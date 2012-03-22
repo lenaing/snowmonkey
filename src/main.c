@@ -85,13 +85,13 @@ void run() {
         
     } else {
         if (0 == file_exists(context->szInputFilename)) {
-            if (0 == check_fileformat_supported_by_plugins()) {
-                load_file();
+            load_file();
+            if (1 == check_fileformat_supported_by_plugins()) {
                 if (context->bList) {
                     doList();
                 }
-                unload_file();
             }
+            unload_file();
         } else {
             if (NULL == context->szInputFilename) {
                 printf("No input file specified!\n");
