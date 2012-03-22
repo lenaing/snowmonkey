@@ -41,11 +41,21 @@ doList()
     OnsenArchivePlugin_t *pInstance = NULL;
     OnsenArchiveInfo_t *pInfo = NULL;
     OnsenArchiveEntry_t *pEntry = NULL;
-
+    int rc;
     /* Retrieve archive info */
     pInfo = onsen_new_archive_info();
     pInstance = context->pPlugins[0]->pInstance;
-    pInstance->getArchiveInfo(1, context->pInputFile, context->lInputFileSize, pInfo);
+    rc = pInstance->getArchiveInfo(1,
+                                    context->pInputFile,
+                                    context->lInputFileSize,
+                                    pInfo);
+    if (0 == rc) {
+        if (context->bVerbose) {
+            printf("|   Failed to retrieve archive info!\n");
+        }
+        onsen_free_archive_info(pInfo);
+        return;
+    }
 
     /* Print archive info */
     if (context->bVerbose) {
