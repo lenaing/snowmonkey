@@ -51,6 +51,8 @@ int bOptionPrintVersion;
 int bOptionVerbose;
 int bOptionExtract;
 int bOptionList;
+char **a_szOptionQueriedFilenames;
+int iOptionQueriedFilenamesCount;
 char *szOptionInputFilename;
 char *szOptionPluginsFilenames;
 char *szOptionPluginsDirs;

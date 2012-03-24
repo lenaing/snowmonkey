@@ -41,6 +41,8 @@ new_context()
 
     pContext->szInputFilename = NULL;
     pContext->pInputFile = NULL;
+    pContext->a_szQueriedFilenames = NULL;
+    pContext->iQueriedFilenamesCount = 0;
 
     pContext->pPlugins = NULL;
     pContext->iPluginsCount = 0;
@@ -56,6 +58,10 @@ void
 free_context(Context_t *pContext)
 {
     if (NULL != pContext) {
+        if (NULL != pContext->a_szQueriedFilenames) {
+            free(pContext->a_szQueriedFilenames);
+        }
+
         free(pContext);
     }
 }

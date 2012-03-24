@@ -137,6 +137,7 @@ parse_options(int argc, char *argv[])
     char *options = ":f:hp:P:tvx";
     int option;
     int error = 0;
+    int i;
 #ifdef HAS_LONG_OPT
     int optionIndex = 0;
     static struct option longOptions[] = {
@@ -216,6 +217,15 @@ parse_options(int argc, char *argv[])
 
     }
 
+    if (optind != argc) {
+        iOptionQueriedFilenamesCount = (argc - optind);
+        a_szOptionQueriedFilenames = calloc(iOptionQueriedFilenamesCount,
+                                                sizeof(char *));
+        for (i=0; i < iOptionQueriedFilenamesCount; i++) {
+            a_szOptionQueriedFilenames[i] = argv[optind++];
+        }
+    }
+
     if (1 == error) {
         usage();
         exit(EXIT_FAILURE);
@@ -228,6 +238,8 @@ initialize_cli_context()
 {
     context = new_context();
     context->szInputFilename = szOptionInputFilename;
+    context->a_szQueriedFilenames = a_szOptionQueriedFilenames;
+    context->iQueriedFilenamesCount = iOptionQueriedFilenamesCount;
     context->szPluginsFilenames = szOptionPluginsFilenames;
     context->szPluginsDirs = szOptionPluginsDirs;
     context->bExtract = bOptionExtract;

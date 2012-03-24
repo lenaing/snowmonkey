@@ -34,14 +34,44 @@
 #include "actions.h"
 
 void
+printEntry(OnsenArchiveEntry_t *pEntry, char *szFilename)
+{
+    int i;
+
+    if (context->bVerbose) {
+        printf(" %011X", pEntry->iOffset);
+        printf("%12d", pEntry->iSize);
+        printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
+        printf("%12d", pEntry->iCompressedSize);
+        printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
+        if (0 != pEntry->iAddlFdsCount) {
+            for (i = 0; i < pEntry->iAddlFdsCount; i++) {
+                if (NULL != pEntry->a_szAddlFds[i]) {
+                    printf("%12s", pEntry->a_szAddlFds[i]);
+                }
+            }
+        }
+        printf("  ");
+    }
+
+    printf("%s\n", szFilename);
+
+}
+
+void
 doList()
 {
     int i, j;
     char *szTmpDestFilename;
+    char *szTmpFilename;
+
     OnsenArchivePlugin_t *pInstance = NULL;
     OnsenArchiveInfo_t *pInfo = NULL;
     OnsenArchiveEntry_t *pEntry = NULL;
     int rc;
+    int iQueriesCount;
+    char **a_szQueriedFilenames;
+
     /* Retrieve archive info */
     pInfo = onsen_new_archive_info();
     pInstance = context->pPlugins[0]->pInstance;
@@ -56,6 +86,9 @@ doList()
         onsen_free_archive_info(pInfo);
         return;
     }
+
+    iQueriesCount = context->iQueriedFilenamesCount;
+    a_szQueriedFilenames = context->a_szQueriedFilenames;
 
     /* Print archive info */
     if (context->bVerbose) {
@@ -117,36 +150,33 @@ doList()
         }
 
         /* TODO : Adapt to field size? */
-        if (context->bVerbose) {
-            printf(" %011X", pEntry->iOffset);
-            printf("%12d", pEntry->iSize);
-            printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
-            printf("%12d", pEntry->iCompressedSize);
-            printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
-            if (0 != pEntry->iAddlFdsCount) {
-                for (j = 0; j < pEntry->iAddlFdsCount; j++) {
-                    if (NULL != pEntry->a_szAddlFds[j]) {
-                        printf("%12s", pEntry->a_szAddlFds[j]);
-                    }
-                }
-            }
-            printf("  ");
-        }
-
         switch(pInfo->eArchiveFilenamesEncoding) {
             case SHIFT_JIS : {
                 szTmpDestFilename = onsen_shift_jis2utf8(pIconv, pEntry->szFilename);
-                printf("%s\n", szTmpDestFilename);
-                free(szTmpDestFilename);
+                szTmpFilename = szTmpDestFilename;
                 break;
             };
             default : {
-                printf("%s\n", pEntry->szFilename);
+                szTmpFilename = (char *)(pEntry->szFilename);
             };
         }
 
+        if (0 != iQueriesCount) {
+            for (j = 0; j < iQueriesCount; j++) {
+                if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
+                    printEntry(pEntry, szTmpFilename);
+                    break;
+                }
+            }
+        } else {
+            printEntry(pEntry, szTmpFilename);
+        }
 
+        if (NULL != szTmpDestFilename) {
+            free(szTmpDestFilename);
+        }
     }
+
     if (pIconv != NULL) {
         onsen_iconv_cleanup(pIconv);
     }

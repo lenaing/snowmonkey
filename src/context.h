@@ -47,6 +47,9 @@ struct _Context_s
     long lInputFileSize;                    /* Current input file size.       */
     int fdInputFile;                        /* Current input file descriptor. */
 
+    char **a_szQueriedFilenames;            /* Files queried in archive.      */
+    int iQueriedFilenamesCount;             /* Count of files queried.        */
+
     /* Plugins. */
     OnsenPlugin_t **pPlugins;               /* List of loaded plugins.        */
     int iPluginsCount;                      /* Count of loaded plugins.       */
