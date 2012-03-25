@@ -33,83 +33,26 @@
  */
 #include "actions.h"
 
-void
-printEntry(OnsenArchiveEntry_t *pEntry, char *szFilename)
-{
-    int i;
-
-    if (context->bVerbose) {
-        printf(" %011X", pEntry->iOffset);
-        printf("%12d", pEntry->iSize);
-        printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
-        printf("%12d", pEntry->iCompressedSize);
-        printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
-        if (0 != pEntry->iAddlFdsCount) {
-            for (i = 0; i < pEntry->iAddlFdsCount; i++) {
-                if (NULL != pEntry->a_szAddlFds[i]) {
-                    printf("%12s", pEntry->a_szAddlFds[i]);
-                }
-            }
-        }
-        printf("  ");
-    }
-
-    printf("%s\n", szFilename);
-
-}
+iconv_t pIconv = NULL;
+extern char *OnsenEncodings[];
+extern Context_t *context;
 
 void
-doList()
+print_info(OnsenArchiveInfo_t *pInfo)
 {
-    int i, j;
-    char *szTmpDestFilename;
-    char *szTmpFilename;
-
-    OnsenArchivePlugin_t *pInstance = NULL;
-    OnsenArchiveInfo_t *pInfo = NULL;
-    OnsenArchiveEntry_t *pEntry = NULL;
-    int rc;
-    int iQueriesCount;
-    char **a_szQueriedFilenames;
-
-    /* Retrieve archive info */
-    pInfo = onsen_new_archive_info();
-    pInstance = context->pPlugins[0]->pInstance;
-    rc = pInstance->getArchiveInfo(1,
-                                    context->pInputFile,
-                                    context->lInputFileSize,
-                                    pInfo);
-    if (0 == rc) {
-        if (context->bVerbose) {
-            printf("|   Failed to retrieve archive info!\n");
-        }
-        onsen_free_archive_info(pInfo);
-        return;
-    }
-
-    iQueriesCount = context->iQueriedFilenamesCount;
-    a_szQueriedFilenames = context->a_szQueriedFilenames;
-
-    /* Print archive info */
     if (context->bVerbose) {
         printf("|   Archive filename = %s\n", context->szInputFilename);
         printf("|   Archive size = %ld bytes\n", pInfo->lArchiveFileSize);
         printf("|   Archive entries count = %d\n", pInfo->iArchiveEntriesCount);
         printf("|\n");
     }
+}
 
-    switch(pInfo->eArchiveFilenamesEncoding) {
-        case SHIFT_JIS : {
-            pIconv = onsen_iconv_init("UTF-8", OnsenEncodings[pInfo->eArchiveFilenamesEncoding]);
-            break;
-        };
-        default : {
-        };
-    }
-
-    if (NULL == pInfo->a_pArchiveEntries[0]) {
-        printf("argh\n");
-    }
+void
+print_header(OnsenArchiveInfo_t *pInfo)
+{
+    /* TODO : Adapt to field size? */
+    int i = 0;
 
     if (context->bVerbose) {
         printf("%12s", "Offset");
@@ -133,11 +76,81 @@ doList()
         printf("%s", "  ------------------");
         printf("\n");
     }
+}
 
+void
+print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
+{
+    /* TODO : Adapt to field size? */
+    int i;
 
-    /* For each file in archive, print info */
+    if (context->bVerbose) {
+        printf(" %011X", pEntry->iOffset);
+        printf("%12d", pEntry->iSize);
+        printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
+        printf("%12d", pEntry->iCompressedSize);
+        printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
+        if (0 != pEntry->iAddlFdsCount) {
+            for (i = 0; i < pEntry->iAddlFdsCount; i++) {
+                if (NULL != pEntry->a_szAddlFds[i]) {
+                    printf("%12s", pEntry->a_szAddlFds[i]);
+                }
+            }
+        }
+        printf("  ");
+    }
+    printf("%s\n", szFilename);
+
+}
+
+void
+do_list()
+{
+    OnsenArchivePlugin_t *pInstance = NULL;
+    OnsenArchiveInfo_t *pInfo = NULL;
+    OnsenArchiveEntry_t *pEntry = NULL;
+    enum OnsenEncoding pEncoding = ASCII;
+    int i, j;
+    int rc = 0;
+    int iQueriesCount = 0;
+    char *szTmp;
+    char *szTmpFilename;
+    char **a_szQueriedFilenames = NULL;
+
+    iQueriesCount = context->iQueriedFilenamesCount;
+    a_szQueriedFilenames = context->a_szQueriedFilenames;
+
+    /* Retrieve archive info */
+    pInfo = onsen_new_archive_info();
+    pInstance = context->pPlugins[0]->pInstance;
+    rc = pInstance->getArchiveInfo(1,
+                                    context->pInputFile,
+                                    context->lInputFileSize,
+                                    pInfo);
+    if (0 == rc) {
+        if ((context->bVerbose) || (NULL == pInfo->a_pArchiveEntries[0])) {
+            printf("|   Failed to read archive info.\n");
+        }
+        onsen_free_archive_info(pInfo);
+        return;
+    }
+
+    /* Iconv stuff */
+    pEncoding = pInfo->eArchiveFilenamesEncoding;
+    switch(pEncoding) {
+        case SHIFT_JIS : {
+            pIconv = onsen_iconv_init("UTF-8", OnsenEncodings[pEncoding]);
+            break;
+        };
+        default : {
+        };
+    }
+
+    /* Output results */
+    print_info(pInfo);
+    print_header(pInfo);
+
     for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
-
         if (NULL == pInfo->a_pArchiveEntries) {
             /* No archive entry defined. Stop here.*/
             break;
@@ -149,11 +162,10 @@ doList()
             continue;
         }
 
-        /* TODO : Adapt to field size? */
-        switch(pInfo->eArchiveFilenamesEncoding) {
+        switch(pEncoding) {
             case SHIFT_JIS : {
-                szTmpDestFilename = onsen_shift_jis2utf8(pIconv, pEntry->szFilename);
-                szTmpFilename = szTmpDestFilename;
+                szTmp = onsen_shift_jis2utf8(pIconv, pEntry->szFilename);
+                szTmpFilename = szTmp;
                 break;
             };
             default : {
@@ -164,16 +176,16 @@ doList()
         if (0 != iQueriesCount) {
             for (j = 0; j < iQueriesCount; j++) {
                 if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
-                    printEntry(pEntry, szTmpFilename);
+                    print_entry(pEntry, szTmpFilename);
                     break;
                 }
             }
         } else {
-            printEntry(pEntry, szTmpFilename);
+            print_entry(pEntry, szTmpFilename);
         }
 
-        if (NULL != szTmpDestFilename) {
-            free(szTmpDestFilename);
+        if (NULL != szTmp) {
+            free(szTmp);
         }
     }
 

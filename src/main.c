@@ -88,7 +88,7 @@ void run() {
             load_file();
             if (1 == check_fileformat_supported_by_plugins()) {
                 if (context->bList) {
-                    doList();
+                    do_list();
                 }
             }
             unload_file();

@@ -40,12 +40,10 @@
 #include <libonsen/archive_plugin.h>
 #include <libonsen/iconv_utils.h>
 #include <libonsen/shift_jis_utils.h>
-extern Context_t *context;
 
-/* Encoding related */
-iconv_t pIconv;
-extern char *OnsenEncodings[];
-
-void doList();
+void do_list();
+void print_info(OnsenArchiveInfo_t *);
+void print_header(OnsenArchiveInfo_t *);
+void print_entry(OnsenArchiveEntry_t *, char *);
 
 #endif /* __CLI_ACTIONS_H */
