@@ -34,113 +34,112 @@
 #include "datafiles.h"
 
 char *
-get_data_dirs(char *component) {
-    char *xdgTmp;
-    char *envTmp;
-    char *dataDirs;
-    
-    char *token = NULL;
-    char *delimiters = ":";
-    char *saved = NULL;
+get_data_dirs(char *szComponent)
+{
+    char *pSaved = NULL;
+    char *szDataDirs = NULL;
+    char *szDelimiters = ":";
+    char *szToken = NULL;
+    char *szTmpEnv = NULL;
+    char *szTmpXdg = NULL;
 
-    dataDirs = calloc(MAX_STRING_LENGTH, sizeof(char));
+    szDataDirs = calloc(MAX_STRING_LENGTH, sizeof(char));
 
     /* Parse XDG_DATA_HOME first. */
-    xdgTmp = getenv("XDG_DATA_HOME");
-    if (NULL != xdgTmp) {
-        strcat(dataDirs, xdgTmp);
+    szTmpXdg = getenv("XDG_DATA_HOME");
+    if (NULL != szTmpXdg) {
+        strcat(szDataDirs, szTmpXdg);
 
-        if (! is_slashed(xdgTmp)) {
-            strcat(dataDirs, "/");
+        if (! is_slashed(szTmpXdg)) {
+            strcat(szDataDirs, "/");
         }
 
-        strcat(dataDirs, component);
-        strcat(dataDirs, "/");
+        strcat(szDataDirs, szComponent);
+        strcat(szDataDirs, "/");
     }
 
     /* Parse XDG_DATA_DIRS now. */
-    xdgTmp = getenv("XDG_DATA_DIRS");
-    if (NULL != xdgTmp) {
+    szTmpXdg = getenv("XDG_DATA_DIRS");
+    if (NULL != szTmpXdg) {
 
-        envTmp = onsen_strdup(xdgTmp);
-        if (NULL != envTmp) {
+        szTmpEnv = onsen_strdup(szTmpXdg);
+        if (NULL != szTmpEnv) {
 
-            token = strtok_r(envTmp, delimiters, &saved);
-            while (NULL != token) {
-                strcat(dataDirs, ":");
-                strcat(dataDirs, token);
+            szToken = strtok_r(szTmpEnv, szDelimiters, &pSaved);
+            while (NULL != szToken) {
+                strcat(szDataDirs, ":");
+                strcat(szDataDirs, szToken);
 
-                if (! is_slashed(token)) {
-                    strcat(dataDirs, "/");
+                if (! is_slashed(szToken)) {
+                    strcat(szDataDirs, "/");
                 }
-                strcat(dataDirs, component);
-                strcat(dataDirs, "/");
+                strcat(szDataDirs, szComponent);
+                strcat(szDataDirs, "/");
 
-                token = strtok_r(NULL, delimiters, &saved);
+                szToken = strtok_r(NULL, szDelimiters, &pSaved);
             }
 
-            onsen_free(envTmp);
+            onsen_free(szTmpEnv);
         }
     }
 
-    return dataDirs;
+    return szDataDirs;
 }
 
 char **
-find_data_files(char *search, char *dataDirs) {
+find_data_files(char *szSearch, char *szDataDirs)
+{
     int i;
-    int count = 0;
-    wordexp_t mots;
-    char *tmpDir;
-    char *curDir;
-    char *delimiters = ":";
-    char *saved;
-    
-    char **filenames;
-    char *filename;
+    int iCount = 0;
+    wordexp_t sWords;
+    char *pSaved = NULL;
+    char *szCurDir = NULL;
+    char *szDelimiters = ":";
+    char *szFilename = NULL;
+    char *szTmpDir = NULL;
+    char **a_szFilenames = NULL;
 
-    filenames = calloc(MAX_SEARCH_RESULTS, sizeof(char *));
-    tmpDir = calloc(MAX_STRING_LENGTH, sizeof(char));
+    a_szFilenames = calloc(MAX_SEARCH_RESULTS, sizeof(char *));
+    szTmpDir = calloc(MAX_STRING_LENGTH, sizeof(char));
 
-    curDir = strtok_r(dataDirs, delimiters, &saved);
-    strcat(tmpDir, curDir);
-    if (! is_slashed(curDir)) {
-        strcat(tmpDir, "/");
+    szCurDir = strtok_r(szDataDirs, szDelimiters, &pSaved);
+    strcat(szTmpDir, szCurDir);
+    if (! is_slashed(szCurDir)) {
+        strcat(szTmpDir, "/");
     }
-    strcat(tmpDir, search);
+    strcat(szTmpDir, szSearch);
 
-    wordexp(tmpDir, &mots, WRDE_NOCMD);
-    while (NULL != curDir) {
-        curDir = strtok_r(NULL, delimiters, &saved);
-        if (NULL != curDir) {
-            tmpDir[0] = '\0';
-            strcat(tmpDir, curDir);
-            if (! is_slashed(curDir)) {
-                strcat(tmpDir, "/");
+    wordexp(szTmpDir, &sWords, WRDE_NOCMD);
+    while (NULL != szCurDir) {
+        szCurDir = strtok_r(NULL, szDelimiters, &pSaved);
+        if (NULL != szCurDir) {
+            szTmpDir[0] = '\0';
+            strcat(szTmpDir, szCurDir);
+            if (! is_slashed(szCurDir)) {
+                strcat(szTmpDir, "/");
             }
-            strcat(tmpDir, search);
-            wordexp(tmpDir, &mots, WRDE_APPEND|WRDE_NOCMD);
+            strcat(szTmpDir, szSearch);
+            wordexp(szTmpDir, &sWords, WRDE_APPEND|WRDE_NOCMD);
         }
     }
 
-    for (i = 0; i < (int)((&mots)->we_wordc); i++) {
-        filename = ((&mots)->we_wordv)[i];
-        if (0 == file_exists(filename)) {
-            filenames[count++] = onsen_strdup(filename);
+    for (i = 0; i < (int)((&sWords)->we_wordc); i++) {
+        szFilename = ((&sWords)->we_wordv)[i];
+        if (0 == file_exists(szFilename)) {
+            a_szFilenames[iCount++] = onsen_strdup(szFilename);
         }
     }
-    filenames[count] = NULL;
-    wordfree(&mots);
-    free(tmpDir);
-    return filenames;
+    a_szFilenames[iCount] = NULL;
+
+    wordfree(&sWords);
+    free(szTmpDir);
+    return a_szFilenames;
 }
 
 
-int file_exists(char *filename) {
-    struct stat st;
-    if (-1 == stat(filename, &st)) {
-        return 1;
-    } else {
-        return 0;
-    }
+int
+file_exists(char *szFilename)
+{
+    struct stat sSt;
+    return (-1 == stat(szFilename, &sSt));
 }

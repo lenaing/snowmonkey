@@ -47,17 +47,18 @@ struct _Context_s
     long lInputFileSize;                    /* Current input file size.       */
     int fdInputFile;                        /* Current input file descriptor. */
 
-    char **a_szQueriedFilenames;            /* Files queried in archive.      */
-    int iQueriedFilenamesCount;             /* Count of files queried.        */
+    /* Queried files. */
+    char **a_szQueriedFilenames;            /* Queried files.                 */
+    int iQueriedFilenamesCount;             /* Count of queried files.        */
 
     /* Plugins. */
     OnsenPlugin_t **pPlugins;               /* List of loaded plugins.        */
     int iPluginsCount;                      /* Count of loaded plugins.       */
+    char *szPluginsDirs;                    /* List of dirs where to look for
+                                             * plugins, separated by colons.  */
     char *szPluginsFilenames;               /* List of plugins filenames to
                                              * load, without extension and
                                              * separated by commas.           */
-    char *szPluginsDirs;                    /* List of dirs where to look for
-                                             * plugins, separated by colons. */
 
     /* Actions options. */
     int bList;                              /* List archive content.          */

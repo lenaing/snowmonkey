@@ -52,12 +52,12 @@ void start()
     setbuf(stderr, NULL);
 
     if (context->bVerbose) {
-        fprintf(stdout, "            @(⌒⌒ )@            \n\n");
-        fprintf(stdout, "       Snow Monkey v%d.%d%s      \n",
+        printf("            @(⌒⌒ )@            \n\n");
+        printf("       Snow Monkey v%d.%d%s      \n",
                         SM_VERSION_MAJOR,
                         SM_VERSION_MINOR,
                         SM_VERSION_RELEASE);
-        fprintf(stdout, "--------------------------------\n");
+        printf("--------------------------------\n");
     }
     onsen_init(LIBONSEN_VERBOSITY);
 }
@@ -65,24 +65,23 @@ void start()
 void stop()
 {
     if (context->bVerbose) {
-        fprintf(stdout, "---------------------------------\n");
-        fprintf(stdout, " Snow monkey ended successfully! \n");
-        fprintf(stdout, "            @(⌒_⌒)@              \n");
+        printf("---------------------------------\n");
+        printf(" Snow monkey ended successfully! \n");
+        printf("            @(⌒_⌒)@              \n");
     }
 }
 
-void run() {
+void run()
+{
     comply_to_freedesktop_specs();
     load_plugins(context->szPluginsFilenames, context->szPluginsDirs);
 
     if (context->bVerbose) {
-        fprintf(stdout, "|   Successfully loaded %d plugins.\n",
-                context->iPluginsCount);
+        printf("|   Successfully loaded %d plugins.\n", context->iPluginsCount);
     }
 
     if (0 == context->iPluginsCount) {
-        fprintf(stdout, "|   No plugin loaded, can't open a file without a plugin...\n");
-        
+        printf("|   No plugin loaded, can't open a file without a plugin...\n");
     } else {
         if (0 == file_exists(context->szInputFilename)) {
             load_file();
@@ -94,9 +93,10 @@ void run() {
             unload_file();
         } else {
             if (NULL == context->szInputFilename) {
-                printf("No input file specified!\n");
+                fprintf(stderr, "|   No input file specified!\n");
             } else {
-                printf("Unable to open file '%s'!\n", context->szInputFilename);
+                fprintf(stderr, "|   Unable to open file ");
+                fprintf(stderr, "'%s'!\n", context->szInputFilename);
             }
         }
     }

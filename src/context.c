@@ -46,6 +46,8 @@ new_context()
 
     pContext->pPlugins = NULL;
     pContext->iPluginsCount = 0;
+    pContext->szPluginsDirs = NULL;
+    pContext->szPluginsFilenames = NULL;
 
     pContext->bList = 0;
     pContext->bExtract = 0;

@@ -35,6 +35,20 @@
 
 #ifdef HAS_LONG_OPT
     #include <getopt.h>
+
+    static struct option sLongOptions[] = {
+        { "extract", 0, NULL, 'x' },
+        { "get",     0, NULL, 'x' },
+        { "file",    1, NULL, 'f' },
+        { "plugins", 1, NULL, 'p' },
+        { "plugins-dirs", 1, NULL, 'P' },
+        { "help",    0, NULL, 'h' },
+        { "list",    0, NULL, 't' },
+        { "usage",   0, &bOptionPrintUsage, 1 },
+        { "verbose", 0, NULL, 'v' },
+        { "version", 0, &bOptionPrintVersion, 1 },
+        { NULL,      0, NULL, 0 }
+    };
 #endif
 
 void
@@ -134,37 +148,23 @@ usage()
 void
 parse_options(int argc, char *argv[])
 {
-    char *options = ":f:hp:P:tvx";
-    int option;
-    int error = 0;
     int i;
+    int bError = 0;
 #ifdef HAS_LONG_OPT
-    int optionIndex = 0;
-    static struct option longOptions[] = {
-        { "extract", 0, NULL, 'x' },
-        { "get",     0, NULL, 'x' },
-        { "file",    1, NULL, 'f' },
-        { "plugins", 1, NULL, 'p' },
-        { "plugins-dirs", 1, NULL, 'P' },
-        { "help",    0, NULL, 'h' },
-        { "list",    0, NULL, 't' },
-        { "usage",   0, &bOptionPrintUsage, 1 },
-        { "verbose", 0, NULL, 'v' },
-        { "version", 0, &bOptionPrintVersion, 1 },
-        { NULL,      0, NULL, 0 }
-    };
+    int iOptionIndex = 0;
 #endif
+    char cOption;
+    char *options = ":f:hp:P:tvx";
 
-    /* Start parsing options. */
     while (1) {
 
 #ifdef HAS_LONG_OPT
-        option = getopt_long(argc, argv, options, longOptions, &optionIndex);
+        cOption = getopt_long(argc, argv, options, sLongOptions, &iOptionIndex);
 #else
-        option = getopt(argc, argv, options);
+        cOption = getopt(argc, argv, options);
 #endif
 
-        if (option == -1) {
+        if (cOption == -1) {
             break;
         }
 
@@ -178,14 +178,14 @@ parse_options(int argc, char *argv[])
             exit(EXIT_SUCCESS);
         }
 
-        /* Check option. */
-        switch (option) {
+        switch (cOption) {
             case 'f' : {
                 if (NULL == szOptionInputFilename) {
                     szOptionInputFilename = optarg;
                 } else {
-                    error = 1;
-                    fprintf(stderr, "Error : You can only specify one archive.\n");
+                    bError = 1;
+                    fprintf(stderr, "Error :");
+                    fprintf(stderr, "You can only specify one archive.\n");
                 }
             }
                 break;
@@ -209,7 +209,7 @@ parse_options(int argc, char *argv[])
                 help();
                 exit(EXIT_SUCCESS);
             case ':' :
-                error = 1;
+                bError = 1;
                 fprintf(stderr, "Error : Missing arguments.\n");
             default :
                 break;
@@ -226,7 +226,7 @@ parse_options(int argc, char *argv[])
         }
     }
 
-    if (1 == error) {
+    if (1 == bError) {
         usage();
         exit(EXIT_FAILURE);
     }

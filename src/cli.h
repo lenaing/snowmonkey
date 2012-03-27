@@ -41,21 +41,22 @@
 
 extern Context_t *context;
 
-void version();
-void help();
-void usage();
-void parse_options(int, char **);
-
 int bOptionPrintUsage;
 int bOptionPrintVersion;
 int bOptionVerbose;
 int bOptionExtract;
 int bOptionList;
-char **a_szOptionQueriedFilenames;
 int iOptionQueriedFilenamesCount;
+
 char *szOptionInputFilename;
 char *szOptionPluginsFilenames;
 char *szOptionPluginsDirs;
+char **a_szOptionQueriedFilenames;
+
+void version();
+void help();
+void usage();
+void parse_options(int, char **);
 
 void initialize_cli_context();
 void end_cli_context();

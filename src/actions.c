@@ -129,7 +129,7 @@ do_list()
                                     pInfo);
     if (0 == rc) {
         if ((context->bVerbose) || (NULL == pInfo->a_pArchiveEntries[0])) {
-            printf("|   Failed to read archive info.\n");
+            fprintf(stderr, "|   Failed to read archive info.\n");
         }
         onsen_free_archive_info(pInfo);
         return;

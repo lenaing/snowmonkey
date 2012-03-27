@@ -47,8 +47,8 @@ comply_to_environment_variables()
     value = getenv("HOME");
     if (NULL == value) {
         /* Wait, WHAT? */
-        fprintf(stderr, "No HOME variable defined? REALLY?");
-        fprintf(stderr, "Defaulting to '/'... meh.");
+        fprintf(stderr, "|   No HOME variable defined? REALLY?\n");
+        fprintf(stderr, "|   Meh. Setting '/' as HOME.\n");
         putenv("HOME=/");
     }
 

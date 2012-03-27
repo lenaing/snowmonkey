@@ -41,9 +41,10 @@
 #include <libonsen/iconv_utils.h>
 #include <libonsen/shift_jis_utils.h>
 
-void do_list();
 void print_info(OnsenArchiveInfo_t *);
 void print_header(OnsenArchiveInfo_t *);
 void print_entry(OnsenArchiveEntry_t *, char *);
+
+void do_list();
 
 #endif /* __CLI_ACTIONS_H */

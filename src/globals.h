@@ -35,7 +35,7 @@
 #define __GLOBALS_H
 
 #ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 500
+    #define _XOPEN_SOURCE 500   
 #endif
 
 #include <stdlib.h>

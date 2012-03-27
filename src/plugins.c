@@ -36,12 +36,11 @@
 void
 load_plugins_from_filenames(char **a_szFilenames)
 {
+    OnsenPlugin_t **a_pPlugins = NULL;
+    OnsenPlugin_t *pPlugin = NULL;
     int i = 0;
     int iLoaded = 0;
     int rc;
-
-    OnsenPlugin_t **a_pPlugins = NULL;
-    OnsenPlugin_t *pPlugin = NULL;
 
     a_pPlugins = calloc(MAX_PLUGINS, sizeof(OnsenPlugin_t *));
 
@@ -156,8 +155,8 @@ load_plugins(char *szPluginsNames, char *szPluginsDirs)
 void
 unload_plugins()
 {
-    int i = 0;
     OnsenPlugin_t *pPlugin;
+    int i;
 
     for (i = 0; i < context->iPluginsCount; i++) {
         pPlugin = context->pPlugins[i];
@@ -171,8 +170,9 @@ unload_plugins()
 int
 check_fileformat_supported_by_plugins()
 {
-    int i;
     OnsenPlugin_t *pPlugin;
+    int i;
+
     for (i = 0; i < context->iPluginsCount; i++) {
         pPlugin = context->pPlugins[i];
         if (pPlugin->isFileSupported(1,
@@ -181,5 +181,6 @@ check_fileformat_supported_by_plugins()
             return 1;
         }
     }
+
     return 0;
 }
