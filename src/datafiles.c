@@ -50,7 +50,7 @@ get_data_dirs(char *szComponent)
     if (NULL != szTmpXdg) {
         strcat(szDataDirs, szTmpXdg);
 
-        if (! is_slashed(szTmpXdg)) {
+        if (! onsen_str_is_slashed(szTmpXdg)) {
             strcat(szDataDirs, "/");
         }
 
@@ -70,7 +70,7 @@ get_data_dirs(char *szComponent)
                 strcat(szDataDirs, ":");
                 strcat(szDataDirs, szToken);
 
-                if (! is_slashed(szToken)) {
+                if (! onsen_str_is_slashed(szToken)) {
                     strcat(szDataDirs, "/");
                 }
                 strcat(szDataDirs, szComponent);
@@ -104,7 +104,7 @@ find_data_files(char *szSearch, char *szDataDirs)
 
     szCurDir = strtok_r(szDataDirs, szDelimiters, &pSaved);
     strcat(szTmpDir, szCurDir);
-    if (! is_slashed(szCurDir)) {
+    if (! onsen_str_is_slashed(szCurDir)) {
         strcat(szTmpDir, "/");
     }
     strcat(szTmpDir, szSearch);
@@ -115,7 +115,7 @@ find_data_files(char *szSearch, char *szDataDirs)
         if (NULL != szCurDir) {
             szTmpDir[0] = '\0';
             strcat(szTmpDir, szCurDir);
-            if (! is_slashed(szCurDir)) {
+            if (! onsen_str_is_slashed(szCurDir)) {
                 strcat(szTmpDir, "/");
             }
             strcat(szTmpDir, szSearch);

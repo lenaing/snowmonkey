@@ -58,16 +58,12 @@ SET(
         src/datafiles.c
         src/context.c
         src/freedesktop.c
-        src/string_utils.c
 )
-
-# Need link to libonsen
-SET(ONSEN_LIB onsen)
 
 # Usual stuff
 ADD_DEFINITIONS(-W -Wall -ansi -pedantic)
 ADD_DEFINITIONS(-DHAS_LONG_OPT)
 ADD_EXECUTABLE(snowmonkey ${snowmonkey_SRCS})
-TARGET_LINK_LIBRARIES(snowmonkey ${ONSEN_LIB} dl)
+TARGET_LINK_LIBRARIES(snowmonkey onsen dl)
 
 INSTALL(TARGETS snowmonkey DESTINATION bin)

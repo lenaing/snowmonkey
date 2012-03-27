@@ -35,7 +35,6 @@
 #define __DATAFILES_H
 
 #include "globals.h"
-#include "string_utils.h"
 #include <wordexp.h>
 #include <sys/stat.h>
 
