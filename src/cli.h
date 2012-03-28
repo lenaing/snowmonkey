@@ -49,6 +49,7 @@ int bOptionList;
 int iOptionQueriedFilenamesCount;
 
 char *szOptionInputFilename;
+char *szOptionOutputDir;
 char *szOptionPluginsFilenames;
 char *szOptionPluginsDirs;
 char **a_szOptionQueriedFilenames;

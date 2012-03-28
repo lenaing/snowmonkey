@@ -37,17 +37,18 @@
     #include <getopt.h>
 
     static struct option sLongOptions[] = {
-        { "extract", 0, NULL, 'x' },
-        { "get",     0, NULL, 'x' },
-        { "file",    1, NULL, 'f' },
-        { "plugins", 1, NULL, 'p' },
-        { "plugins-dirs", 1, NULL, 'P' },
-        { "help",    0, NULL, 'h' },
-        { "list",    0, NULL, 't' },
-        { "usage",   0, &bOptionPrintUsage, 1 },
-        { "verbose", 0, NULL, 'v' },
-        { "version", 0, &bOptionPrintVersion, 1 },
-        { NULL,      0, NULL, 0 }
+        { "extract",        0, NULL, 'x' },
+        { "get",            0, NULL, 'x' },
+        { "file",           1, NULL, 'f' },
+        { "plugins",        1, NULL, 'p' },
+        { "plugins-dirs",   1, NULL, 'P' },
+        { "directory",      1, NULL, 'C' },
+        { "help",           0, NULL, 'h' },
+        { "list",           0, NULL, 't' },
+        { "usage",          0, &bOptionPrintUsage, 1 },
+        { "verbose",        0, NULL, 'v' },
+        { "version",        0, &bOptionPrintVersion, 1 },
+        { NULL,             0, NULL, 0 }
     };
 #endif
 
@@ -88,12 +89,14 @@ Examples:\n\
   -x, --extract, --get       Extract files from an archive.\n\n\
  Device selection and switching:\n\n\
   -f, --file=ARCHIVE         Use archive file or device ARCHIVE.\n\n\
+ Local file selection:\n\n\
+  -C, --directory=DIR        Output to directory DIR.\n\n\
+";
+    static char const helpOptions2[] = "\
  Plugins selection:\n\n\
   -p, --plugins              Load plugins only if they match specified\n\
                              filenames.\n\
   -P, --plugins-dir          Search plugins only in specified directories.\n\n\
-";
-    static char const helpOptions2[] = "\
  Informative output:\n\n\
   -v, --verbose              Verbosely list files processed.\n\n\
  Other options:\n\n\
@@ -106,7 +109,9 @@ Examples:\n\
   -t                         List the contents of an archive.\n\
   -x                         Extract files from an archive.\n\n\
  Device selection and switching:\n\n\
-  -f                         Use archive file or device ARCHIVE.\n\n\
+  -f                         Use given archive file or device.\n\n\
+ Local file selection:\n\n\
+  -C                         Output to given directory.\n\n\
  Plugins selection:\n\n\
   -p                         Load plugins only if they match specified\n\
                              filenames.\n\
@@ -130,17 +135,20 @@ Examples:\n\
 void
 usage()
 {
-#ifdef HAS_LONG_OPT
     static char const optionsUsage[] = "\
+Usage: snowmonkey [-txhv?] [-f ARCHIVE]\n\
+            [-C DIR]\n";
+#ifdef HAS_LONG_OPT
+    static char const longOptionsUsage[] = "\
             [--file]\n\
             [--verbose]\n\
             [--list] [--extract] [--get]\n\
             [--plugins] [--plugins-dir]\n\
             [--help] [--usage] [--version]\n";
 #endif
-    fprintf(stderr, "Usage: snowmonkey [-txhv?] [-f ARCHIVE]\n");
-#ifdef HAS_LONG_OPT
     fprintf(stderr, optionsUsage);
+#ifdef HAS_LONG_OPT
+    fprintf(stderr, longOptionsUsage);
 #endif
 }
 
@@ -154,7 +162,7 @@ parse_options(int argc, char *argv[])
     int iOptionIndex = 0;
 #endif
     char cOption;
-    char *options = ":f:hp:P:tvx";
+    char *options = ":C:f:hp:P:tvx";
 
     while (1) {
 
@@ -179,13 +187,23 @@ parse_options(int argc, char *argv[])
         }
 
         switch (cOption) {
+            case 'C' : {
+                if (NULL == szOptionOutputDir) {
+                    szOptionOutputDir = optarg;
+                } else {
+                    bError = 1;
+                    fprintf(stderr, "Error: You can only specify one output ");
+                    fprintf(stderr, "directory.\n");
+                }
+            }
+                break;
             case 'f' : {
                 if (NULL == szOptionInputFilename) {
                     szOptionInputFilename = optarg;
                 } else {
                     bError = 1;
-                    fprintf(stderr, "Error :");
-                    fprintf(stderr, "You can only specify one archive.\n");
+                    fprintf(stderr, "Error: You can only specify one archive ");
+                    fprintf(stderr, "file.\n");
                 }
             }
                 break;
@@ -210,7 +228,7 @@ parse_options(int argc, char *argv[])
                 exit(EXIT_SUCCESS);
             case ':' :
                 bError = 1;
-                fprintf(stderr, "Error : Missing arguments.\n");
+                fprintf(stderr, "Error: Missing arguments.\n");
             default :
                 break;
         }
@@ -238,6 +256,7 @@ initialize_cli_context()
 {
     context = new_context();
     context->szInputFilename = szOptionInputFilename;
+    context->szOutputDir = szOptionOutputDir;
     context->a_szQueriedFilenames = a_szOptionQueriedFilenames;
     context->iQueriedFilenamesCount = iOptionQueriedFilenamesCount;
     context->szPluginsFilenames = szOptionPluginsFilenames;

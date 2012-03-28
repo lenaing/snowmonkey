@@ -47,6 +47,8 @@ struct _Context_s
     long lInputFileSize;                    /* Current input file size.       */
     int fdInputFile;                        /* Current input file descriptor. */
 
+    char *szOutputDir;                      /* Output directory.              */
+
     /* Queried files. */
     char **a_szQueriedFilenames;            /* Queried files.                 */
     int iQueriedFilenamesCount;             /* Count of queried files.        */

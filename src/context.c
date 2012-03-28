@@ -41,6 +41,7 @@ new_context()
 
     pContext->szInputFilename = NULL;
     pContext->pInputFile = NULL;
+    pContext->szOutputDir = NULL;
     pContext->a_szQueriedFilenames = NULL;
     pContext->iQueriedFilenamesCount = 0;
 

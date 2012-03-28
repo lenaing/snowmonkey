@@ -84,13 +84,20 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry, char
     char *szDestFilename = NULL;
     char *szOutputDir = NULL;
 
-    /* Correct filename for an UNIX system. */
-    /* TODO : add option to set output directory */
-    szDestFilename = onsen_build_filename(".", szFilename);
-    onsen_str_chr_replace(szDestFilename,'\\', '/');
+    if (NULL != context->szOutputDir) {
+        szOutputDir = context->szOutputDir;
+    } else {
+        szOutputDir = ".";
+    }
+
+    szDestFilename = onsen_build_filename(szOutputDir, szFilename);
+
+#if defined(__linux__) || defined(__GNU__)
+    /* Correct filenames for an UNIX system. */
+    onsen_str_chr_replace(szDestFilename, '\\', '/');
+#endif
 
     /* Build directory tree. */
-    szOutputDir = onsen_basedir(szDestFilename);
     onsen_mkdir(szOutputDir);
 
     /* Write file to disk. */
@@ -105,8 +112,6 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry, char
 
     printf("%s\n", szFilename);
 
-    /* Free path and filename */
-    onsen_free(szOutputDir);
     onsen_free(szDestFilename);
 }
 
