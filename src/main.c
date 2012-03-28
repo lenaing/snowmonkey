@@ -86,8 +86,10 @@ void run()
         if (0 == file_exists(context->szInputFilename)) {
             load_file();
             if (1 == check_fileformat_supported_by_plugins()) {
-                if (context->bList) {
-                    do_list();
+                if (context->bExtract) {
+                    process(context->bExtract);
+                } else if (context->bList) {
+                    process(0);
                 }
             }
             unload_file();

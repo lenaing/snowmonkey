@@ -40,11 +40,12 @@
 #include <libonsen/archive_plugin.h>
 #include <libonsen/iconv_utils.h>
 #include <libonsen/shift_jis_utils.h>
+#include <libonsen/string_utils.h>
 
 void print_info(OnsenArchiveInfo_t *);
 void print_header(OnsenArchiveInfo_t *);
 void print_entry(OnsenArchiveEntry_t *, char *);
-
-void do_list();
+void extract_entry(OnsenArchivePlugin_t *, OnsenArchiveEntry_t *, char *);
+void process();
 
 #endif /* __CLI_ACTIONS_H */

@@ -79,6 +79,38 @@ print_header(OnsenArchiveInfo_t *pInfo)
 }
 
 void
+extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry, char *szFilename)
+{
+    char *szDestFilename = NULL;
+    char *szOutputDir = NULL;
+
+    /* Correct filename for an UNIX system. */
+    /* TODO : add option to set output directory */
+    szDestFilename = onsen_build_filename(".", szFilename);
+    onsen_str_chr_replace(szDestFilename,'\\', '/');
+
+    /* Build directory tree. */
+    szOutputDir = onsen_basedir(szDestFilename);
+    onsen_mkdir(szOutputDir);
+
+    /* Write file to disk. */
+    pInstance->writeFile(1,
+                            context->pInputFile,
+                            pEntry->iOffset,
+                            0,
+                            szDestFilename,
+                            pEntry->iCompressedSize,
+                            NULL, /* progress, */
+                            pEntry);
+
+    printf("%s\n", szFilename);
+
+    /* Free path and filename */
+    onsen_free(szOutputDir);
+    onsen_free(szDestFilename);
+}
+
+void
 print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
 {
     /* TODO : Adapt to field size? */
@@ -100,11 +132,10 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
         printf("  ");
     }
     printf("%s\n", szFilename);
-
 }
 
 void
-do_list()
+process(int bExtracting)
 {
     OnsenArchivePlugin_t *pInstance = NULL;
     OnsenArchiveInfo_t *pInfo = NULL;
@@ -146,9 +177,11 @@ do_list()
         };
     }
 
-    /* Output results */
-    print_info(pInfo);
-    print_header(pInfo);
+    if (! bExtracting) {
+        /* Output results */
+        print_info(pInfo);
+        print_header(pInfo);
+    }
 
     for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
         if (NULL == pInfo->a_pArchiveEntries) {
@@ -176,12 +209,20 @@ do_list()
         if (0 != iQueriesCount) {
             for (j = 0; j < iQueriesCount; j++) {
                 if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
-                    print_entry(pEntry, szTmpFilename);
+                    if (bExtracting) {
+                        extract_entry(pInstance, pEntry, szTmpFilename);
+                    } else {
+                        print_entry(pEntry, szTmpFilename);
+                    }
                     break;
                 }
             }
         } else {
-            print_entry(pEntry, szTmpFilename);
+            if (bExtracting) {
+                extract_entry(pInstance, pEntry, szTmpFilename);
+            } else {
+                print_entry(pEntry, szTmpFilename);
+            }
         }
 
         if (NULL != szTmp) {
