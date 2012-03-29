@@ -44,9 +44,8 @@ extern Context_t *context;
 int bOptionPrintUsage;
 int bOptionPrintVersion;
 int bOptionVerbose;
-int bOptionExtract;
-int bOptionList;
 int iOptionQueriedFilenamesCount;
+enum ActionMode eAction;
 
 char *szOptionInputFilename;
 char *szOptionOutputDir;

@@ -157,6 +157,7 @@ void
 parse_options(int argc, char *argv[])
 {
     int i;
+    int iMainOperationModeArgs = 0;
     int bError = 0;
 #ifdef HAS_LONG_OPT
     int iOptionIndex = 0;
@@ -213,14 +214,18 @@ parse_options(int argc, char *argv[])
             case 'P' : 
                 szOptionPluginsDirs = optarg;
                 break;
-            case 't' :
-                bOptionList = 1;
+            case 't' : {
+                eAction = LIST;
+                iMainOperationModeArgs++;
+            }
                 break;
             case 'v' :
                 bOptionVerbose = 1;
                 break;
-            case 'x' :
-                bOptionExtract = 1;
+            case 'x' : {
+                eAction = EXTRACT;
+                iMainOperationModeArgs++;
+            }
                 break;
             case '?' :
             case 'h' :
@@ -235,11 +240,17 @@ parse_options(int argc, char *argv[])
 
     }
 
+    if (1 != iMainOperationModeArgs) {
+        bError = 1;
+        fprintf(stderr, "You may not specify more than one `-tx' ");
+        fprintf(stderr, "option.\n");
+    }
+
     if (optind != argc) {
         iOptionQueriedFilenamesCount = (argc - optind);
         a_szOptionQueriedFilenames = calloc(iOptionQueriedFilenamesCount,
                                                 sizeof(char *));
-        for (i=0; i < iOptionQueriedFilenamesCount; i++) {
+        for (i = 0; i < iOptionQueriedFilenamesCount; i++) {
             a_szOptionQueriedFilenames[i] = argv[optind++];
         }
     }
@@ -261,8 +272,7 @@ initialize_cli_context()
     context->iQueriedFilenamesCount = iOptionQueriedFilenamesCount;
     context->szPluginsFilenames = szOptionPluginsFilenames;
     context->szPluginsDirs = szOptionPluginsDirs;
-    context->bExtract = bOptionExtract;
-    context->bList = bOptionList;
+    context->eAction = eAction;
     context->bVerbose = bOptionVerbose;
 }
 

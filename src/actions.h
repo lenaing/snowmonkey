@@ -46,6 +46,6 @@ void print_info(OnsenArchiveInfo_t *);
 void print_header(OnsenArchiveInfo_t *);
 void print_entry(OnsenArchiveEntry_t *, char *);
 void extract_entry(OnsenArchivePlugin_t *, OnsenArchiveEntry_t *, char *);
-void process();
+void process_file(enum ActionMode);
 
 #endif /* __CLI_ACTIONS_H */

@@ -140,7 +140,7 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
 }
 
 void
-process(int bExtracting)
+process_file(enum ActionMode mode)
 {
     OnsenArchivePlugin_t *pInstance = NULL;
     OnsenArchiveInfo_t *pInfo = NULL;
@@ -182,7 +182,7 @@ process(int bExtracting)
         };
     }
 
-    if (! bExtracting) {
+    if (mode == LIST) {
         /* Output results */
         print_info(pInfo);
         print_header(pInfo);
@@ -214,7 +214,7 @@ process(int bExtracting)
         if (0 != iQueriesCount) {
             for (j = 0; j < iQueriesCount; j++) {
                 if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
-                    if (bExtracting) {
+                    if (mode == EXTRACT) {
                         extract_entry(pInstance, pEntry, szTmpFilename);
                     } else {
                         print_entry(pEntry, szTmpFilename);
@@ -223,7 +223,7 @@ process(int bExtracting)
                 }
             }
         } else {
-            if (bExtracting) {
+            if (mode == EXTRACT) {
                 extract_entry(pInstance, pEntry, szTmpFilename);
             } else {
                 print_entry(pEntry, szTmpFilename);
