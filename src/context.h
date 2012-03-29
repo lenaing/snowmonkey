@@ -37,12 +37,11 @@
 #include "globals.h"
 #include <libonsen/plugin.h>
 
-
+/* Available action modes. */
 enum ActionMode {
     LIST,
     EXTRACT
 };
-
 
 typedef struct _Context_s Context_t;
 
@@ -70,7 +69,7 @@ struct _Context_s
                                              * separated by commas.           */
 
     /* Actions options. */
-    enum ActionMode eAction;
+    enum ActionMode eAction;                /* Selected main action mode.     */
 
     /* Help options. */
     int bVerbose;                           /* Verbose argument detected.     */

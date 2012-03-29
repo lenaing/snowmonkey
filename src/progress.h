@@ -31,14 +31,12 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __PROGRESSBAR_H
-#define __PROGRESSBAR_H
+#ifndef __PROGRESS_H
+#define __PROGRESS_H
 
 #include "globals.h"
-#include <math.h>
 
 double round(double);
 void print_progress(int, int, void *);
 
-#endif /* __PROGRESSBAR_H */
-
+#endif /* __PROGRESS_H */

@@ -32,21 +32,19 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 #include "progress.h"
-double round(double dBoin) {
-  return (dBoin >= 0) ? (dBoin + 0.5) : (dBoin - 0.5);
+
+double
+round(double dBoin)
+{
+    return (dBoin >= 0) ? (dBoin + 0.5) : (dBoin - 0.5);
 }
 
 void
 print_progress(int total, int current, void *data)
 {
-    int iProgressBarWidth;
     float f;
-    int iPos;
-    int iProgressChars;
 
     (void) data;
-    iPos = 0;
-    iProgressBarWidth=40;
 
     if (((total - current) % 1000) != 0) {
         return;
