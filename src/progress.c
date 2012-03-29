@@ -31,22 +31,28 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __CLI_ACTIONS_H
-#define __CLI_ACTIONS_H
-
-#include "globals.h"
-#include "context.h"
 #include "progress.h"
+double round(double dBoin) {
+  return (dBoin >= 0) ? (dBoin + 0.5) : (dBoin - 0.5);
+}
 
-#include <libonsen/archive_plugin.h>
-#include <libonsen/iconv_utils.h>
-#include <libonsen/shift_jis_utils.h>
-#include <libonsen/string_utils.h>
+void
+print_progress(int total, int current, void *data)
+{
+    int iProgressBarWidth;
+    float f;
+    int iPos;
+    int iProgressChars;
 
-void print_info(OnsenArchiveInfo_t *);
-void print_header(OnsenArchiveInfo_t *);
-void print_entry(OnsenArchiveEntry_t *, char *);
-void extract_entry(OnsenArchivePlugin_t *, OnsenArchiveEntry_t *, char *);
-void process_file(enum ActionMode);
+    (void) data;
+    iPos = 0;
+    iProgressBarWidth=40;
 
-#endif /* __CLI_ACTIONS_H */
+    if (((total - current) % 1000) != 0) {
+        return;
+    }
+
+    f = (float)current / (float)total;
+
+    printf("\r[%3.0f%%]", f*100);
+}

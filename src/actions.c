@@ -79,7 +79,8 @@ print_header(OnsenArchiveInfo_t *pInfo)
 }
 
 void
-extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry, char *szFilename)
+extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
+                char *szFilename)
 {
     char *szDestFilename = NULL;
     char *szOutputDir = NULL;
@@ -100,6 +101,13 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry, char
     /* Build directory tree. */
     onsen_mkdir(szOutputDir);
 
+    if (context->bVerbose) {
+        /* Make some space for progress indicator */
+        printf("       ");
+    }
+
+    printf("%s", szFilename);
+
     /* Write file to disk. */
     pInstance->writeFile(1,
                             context->pInputFile,
@@ -107,10 +115,10 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry, char
                             0,
                             szDestFilename,
                             pEntry->iCompressedSize,
-                            NULL, /* progress, */
+                            (context->bVerbose) ? print_progress : NULL,
                             pEntry);
 
-    printf("%s\n", szFilename);
+    printf("\n");
 
     onsen_free(szDestFilename);
 }

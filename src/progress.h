@@ -31,22 +31,14 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __CLI_ACTIONS_H
-#define __CLI_ACTIONS_H
+#ifndef __PROGRESSBAR_H
+#define __PROGRESSBAR_H
 
 #include "globals.h"
-#include "context.h"
-#include "progress.h"
+#include <math.h>
 
-#include <libonsen/archive_plugin.h>
-#include <libonsen/iconv_utils.h>
-#include <libonsen/shift_jis_utils.h>
-#include <libonsen/string_utils.h>
+double round(double);
+void print_progress(int, int, void *);
 
-void print_info(OnsenArchiveInfo_t *);
-void print_header(OnsenArchiveInfo_t *);
-void print_entry(OnsenArchiveEntry_t *, char *);
-void extract_entry(OnsenArchivePlugin_t *, OnsenArchiveEntry_t *, char *);
-void process_file(enum ActionMode);
+#endif /* __PROGRESSBAR_H */
 
-#endif /* __CLI_ACTIONS_H */

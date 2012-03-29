@@ -58,6 +58,7 @@ SET(
         src/datafiles.c
         src/context.c
         src/freedesktop.c
+        src/progress.c
 )
 
 # Usual stuff
