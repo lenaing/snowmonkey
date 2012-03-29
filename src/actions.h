@@ -43,6 +43,9 @@
 #include <libonsen/shift_jis_utils.h>
 #include <libonsen/string_utils.h>
 
+#define MAX_COLUMN_SIZE 255
+#define MAX_FMT_STR_LEN 10
+
 void print_info(OnsenArchiveInfo_t *);
 void print_header(OnsenArchiveInfo_t *);
 void print_entry(OnsenArchiveEntry_t *, char *);

@@ -37,6 +37,31 @@ iconv_t pIconv = NULL;
 extern char *OnsenEncodings[];
 extern Context_t *context;
 
+/* TODO : Move all the listing action to a separate file. */
+int iSizeHeaderLen = 12;
+int iCompSizeHeaderLen = 12;
+int *a_iAddFieldsHeadersLen = NULL;
+char szSizeHeaderFormat[100];
+char szSizeValueFormat[100];
+char szCompSizeHeaderFormat[100];
+char szCompSizeValueFormat[100];
+
+int
+numlen(int i)
+{
+    char szTmp[MAX_COLUMN_SIZE];
+    return sprintf(szTmp, "%d", i);
+}
+
+void repeat_print_char(int n, char c)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        printf("%c", c);
+    }
+}
+
 void
 print_info(OnsenArchiveInfo_t *pInfo)
 {
@@ -49,31 +74,84 @@ print_info(OnsenArchiveInfo_t *pInfo)
 }
 
 void
-print_header(OnsenArchiveInfo_t *pInfo)
+init_print_table(OnsenArchiveInfo_t *pInfo)
 {
-    /* TODO : Adapt to field size? */
+    int i = 0;
+    int j = 0;
+    int iTmpLen = 0;
+    int iAddlFdsCount = 0;
+
+    iAddlFdsCount = pInfo->a_pArchiveEntries[0]->iAddlFdsCount;
+    if (0 != iAddlFdsCount) {
+        a_iAddFieldsHeadersLen = calloc(iAddlFdsCount, sizeof(int));
+    }
+
+    for (i = 0; i < pInfo->iArchiveEntriesCount; i++) {
+        iTmpLen = numlen(pInfo->a_pArchiveEntries[i]->iSize);
+        if (iTmpLen > iSizeHeaderLen) {
+            iSizeHeaderLen = iTmpLen;
+        }
+
+        iTmpLen = numlen(pInfo->a_pArchiveEntries[i]->iCompressedSize);
+        if (iTmpLen > iCompSizeHeaderLen) {
+            iCompSizeHeaderLen = iTmpLen;
+        }
+
+        for (j = 0; j < iAddlFdsCount; j++) {
+            iTmpLen = strlen(pInfo->a_pArchiveEntries[i]->a_szAddlFds[j]);
+            if (iTmpLen > a_iAddFieldsHeadersLen[j]) {
+                a_iAddFieldsHeadersLen[j] = iTmpLen + 1;
+            }
+        }
+    }
+
+    sprintf(szSizeHeaderFormat, " %%%ds", iSizeHeaderLen);
+    sprintf(szCompSizeHeaderFormat, " %%%ds", iCompSizeHeaderLen);
+    sprintf(szSizeValueFormat, " %%%dd", iSizeHeaderLen);
+    sprintf(szCompSizeValueFormat, " %%%dd", iCompSizeHeaderLen);
+}
+
+void
+free_print_table()
+{
+    free(a_iAddFieldsHeadersLen);
+}
+
+void
+print_table_header(OnsenArchiveInfo_t *pInfo)
+{
     int i = 0;
 
+    char szTmpFormat[MAX_FMT_STR_LEN];
+    int iAddlFdsCount = 0;
+
     if (context->bVerbose) {
+        iAddlFdsCount = pInfo->a_pArchiveEntries[0]->iAddlFdsCount;
+
+        /* Headers */
         printf("%12s", "Offset");
-        printf("%12s", "Size");
+        printf(szSizeHeaderFormat, "Size");
         printf("%12s", "Compressed");
-        printf("%12s", "Comp. Size");
+        printf(szCompSizeHeaderFormat, "Comp. Size");
         printf("%12s", "Encrypted");
-        for (i = 0; i < pInfo->a_pArchiveEntries[0]->iAddlFdsCount; i++) {
-            printf("%12s", pInfo->a_pArchiveEntries[0]->a_szAddlFds[i]);
+        for (i = 0; i < iAddlFdsCount; i++) {
+            sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
+            printf(szTmpFormat, pInfo->a_pArchiveEntries[0]->a_szAddlFds[i]);
         }
         printf("%s", "  Name");
         printf("\n");
-        printf("%12s", "-----------");
-        printf("%12s", "-----------");
-        printf("%12s", "-----------");
-        printf("%12s", "-----------");
-        printf("%12s", "-----------");
-        for (i = 0; i < pInfo->a_pArchiveEntries[0]->iAddlFdsCount; i++) {
-            printf("%12s", "-----------");
+
+        /* Headers separation */
+        printf("%12s ", "-----------");
+        repeat_print_char(iSizeHeaderLen, '-');
+        printf("%12s ", "-----------");
+        repeat_print_char(iCompSizeHeaderLen, '-');
+        printf("%12s ", "-----------");
+        for (i = 0; i < iAddlFdsCount; i++) {
+            repeat_print_char(a_iAddFieldsHeadersLen[i], '-');
+            printf(" ");
         }
-        printf("%s", "  ------------------");
+        printf(" %s", "----------------");
         printf("\n");
     }
 }
@@ -126,19 +204,20 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
 void
 print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
 {
-    /* TODO : Adapt to field size? */
     int i;
+    char szTmpFormat[MAX_FMT_STR_LEN];
 
     if (context->bVerbose) {
-        printf(" %011X", pEntry->iOffset);
-        printf("%12d", pEntry->iSize);
+        printf("%012X", pEntry->iOffset);
+        printf(szSizeValueFormat, pEntry->iSize);
         printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
-        printf("%12d", pEntry->iCompressedSize);
+        printf(szCompSizeValueFormat, pEntry->iCompressedSize);
         printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
         if (0 != pEntry->iAddlFdsCount) {
             for (i = 0; i < pEntry->iAddlFdsCount; i++) {
                 if (NULL != pEntry->a_szAddlFds[i]) {
-                    printf("%12s", pEntry->a_szAddlFds[i]);
+                    sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
+                    printf(szTmpFormat, pEntry->a_szAddlFds[i]);
                 }
             }
         }
@@ -193,7 +272,8 @@ process_file(enum ActionMode mode)
     if (mode == LIST) {
         /* Output results */
         print_info(pInfo);
-        print_header(pInfo);
+        init_print_table(pInfo);
+        print_table_header(pInfo);
     }
 
     for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
@@ -241,6 +321,10 @@ process_file(enum ActionMode mode)
         if (NULL != szTmp) {
             free(szTmp);
         }
+    }
+
+    if (mode == LIST) {
+        free_print_table();
     }
 
     if (pIconv != NULL) {
