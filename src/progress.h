@@ -36,7 +36,6 @@
 
 #include "globals.h"
 
-double round(double);
 void print_progress(int, int, void *);
 
 #endif /* __PROGRESS_H */

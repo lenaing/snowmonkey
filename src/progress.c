@@ -33,12 +33,6 @@
  */
 #include "progress.h"
 
-double
-round(double dBoin)
-{
-    return (dBoin >= 0) ? (dBoin + 0.5) : (dBoin - 0.5);
-}
-
 void
 print_progress(int total, int current, void *data)
 {
