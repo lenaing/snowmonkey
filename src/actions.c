@@ -81,6 +81,11 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
     int iTmpLen = 0;
     int iAddlFdsCount = 0;
 
+    if (NULL == pInfo->a_pArchiveEntries) {
+        /* Invalid archive infos */
+        return;
+    }
+
     iAddlFdsCount = pInfo->a_pArchiveEntries[0]->iAddlFdsCount;
     if (0 != iAddlFdsCount) {
         a_iAddFieldsHeadersLen = calloc(iAddlFdsCount, sizeof(int));
@@ -124,6 +129,11 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
 
     char szTmpFormat[MAX_FMT_STR_LEN];
     int iAddlFdsCount = 0;
+
+    if (NULL == pInfo->a_pArchiveEntries) {
+        /* Invalid archive infos */
+        return;
+    }
 
     if (context->bVerbose) {
         iAddlFdsCount = pInfo->a_pArchiveEntries[0]->iAddlFdsCount;
@@ -236,8 +246,8 @@ process_file(enum ActionMode mode)
     int i, j;
     int rc = 0;
     int iQueriesCount = 0;
-    char *szTmp;
-    char *szTmpFilename;
+    char *szTmp = NULL;
+    char *szTmpFilename = NULL;
     char **a_szQueriedFilenames = NULL;
 
     iQueriesCount = context->iQueriedFilenamesCount;
@@ -249,6 +259,7 @@ process_file(enum ActionMode mode)
     rc = pInstance->getArchiveInfo(1,
                                     context->pInputFile,
                                     context->lInputFileSize,
+                                    context->szInputFilename,
                                     pInfo);
     if (0 == rc) {
         if ((context->bVerbose) || (NULL == pInfo->a_pArchiveEntries[0])) {
