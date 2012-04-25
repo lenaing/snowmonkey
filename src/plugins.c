@@ -99,11 +99,11 @@ load_plugins(char *szPluginsNames, char *szPluginsDirs)
 
         if (NULL == szPluginsDirs) {
             /* Search is "plugins/ *.so" for common directories */
-            szSearchCriteria = calloc(strlen(PLUGINS_BASE_DIR) + 1 +
+            szSearchCriteria = calloc(strlen(PLUGINS_BASE_DIR) + 3 +
                                       strlen(PLUGINS_EXTENSION) + 1,
                                       sizeof(char));
             strcat(szSearchCriteria, PLUGINS_BASE_DIR);
-            strcat(szSearchCriteria, "*");
+            strcat(szSearchCriteria, "*/*");
             strcat(szSearchCriteria, PLUGINS_EXTENSION);
         } else {
             /* Search is "*.so" for all others directories */
