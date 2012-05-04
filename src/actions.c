@@ -40,11 +40,15 @@ extern Context_t *context;
 /* TODO : Move all the listing action to a separate file. */
 int iSizeHeaderLen = 12;
 int iCompSizeHeaderLen = 12;
+int iFiletypeFormat = 12;
+int iMediatypeFormat = 12;
 int *a_iAddFieldsHeadersLen = NULL;
 char szSizeHeaderFormat[100];
 char szSizeValueFormat[100];
 char szCompSizeHeaderFormat[100];
 char szCompSizeValueFormat[100];
+char szFiletypeFormat[100];
+char szMediatypeFormat[100];
 
 int
 numlen(int i)
@@ -80,6 +84,13 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
     int j = 0;
     int iTmpLen = 0;
     int iAddlFdsCount = 0;
+    int iType = 0;
+    int bUpdatedMediaTypeColumnSize = 0;
+    long lFileSize;
+    char *szFilename;
+    char *szTmp;
+    void *pData;
+    OnsenPlugin_t *pPlugin;
 
     if (NULL == pInfo->a_pArchiveEntries) {
         /* Invalid archive infos */
@@ -91,7 +102,7 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
         a_iAddFieldsHeadersLen = calloc(iAddlFdsCount, sizeof(int));
     }
 
-    for (i = 0; i < pInfo->iArchiveEntriesCount; i++) {
+    for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
         iTmpLen = numlen(pInfo->a_pArchiveEntries[i]->iSize);
         if (iTmpLen > iSizeHeaderLen) {
             iSizeHeaderLen = iTmpLen;
@@ -108,12 +119,46 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
                 a_iAddFieldsHeadersLen[j] = iTmpLen + 1;
             }
         }
+
+        for (j = 0; j < context->iPluginsCount; j++) {
+            pPlugin = context->pPlugins[j];
+
+            pData = context->pInputFile + pInfo->a_pArchiveEntries[i]->iOffset;
+            szFilename = pInfo->a_pArchiveEntries[i]->szFilename;
+            lFileSize = pInfo->a_pArchiveEntries[i]->iSize;
+
+            iType = pPlugin->isFileSupported(1, szFilename, pData, lFileSize);
+
+            if (iType > 0) {
+                szTmp = calloc(1, MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 1, szTmp, MAX_COLUMN_SIZE);
+                iTmpLen = strlen(szTmp);
+                if (iTmpLen > iFiletypeFormat) {
+                    iFiletypeFormat = iTmpLen;
+                }
+
+                pPlugin->getPluginInfo(iType + 2, szTmp, MAX_COLUMN_SIZE);
+                iTmpLen = strlen(szTmp);
+                if (iTmpLen > iMediatypeFormat) {
+                    iMediatypeFormat = iTmpLen;
+                }
+                free(szTmp);
+                bUpdatedMediaTypeColumnSize = 1;
+            }
+            /* TODO : Fallback to Mediatype */
+        }
+    }
+
+    if (0 == bUpdatedMediaTypeColumnSize) {
+        iMediatypeFormat = strlen(DEFAULT_MEDIA_TYPE);
     }
 
     sprintf(szSizeHeaderFormat, " %%%ds", iSizeHeaderLen);
     sprintf(szCompSizeHeaderFormat, " %%%ds", iCompSizeHeaderLen);
     sprintf(szSizeValueFormat, " %%%dd", iSizeHeaderLen);
     sprintf(szCompSizeValueFormat, " %%%dd", iCompSizeHeaderLen);
+    sprintf(szFiletypeFormat, " %%%ds", iFiletypeFormat);
+    sprintf(szMediatypeFormat, " %%%ds", iMediatypeFormat);
 }
 
 void
@@ -148,6 +193,8 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
             sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
             printf(szTmpFormat, pInfo->a_pArchiveEntries[0]->a_szAddlFds[i]);
         }
+        printf(szFiletypeFormat, "File type");
+        printf(szMediatypeFormat, "Media type");
         printf("%s", "  Name");
         printf("\n");
 
@@ -159,8 +206,11 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
         printf("%12s ", "-----------");
         for (i = 0; i < iAddlFdsCount; i++) {
             repeat_print_char(a_iAddFieldsHeadersLen[i], '-');
-            printf(" ");
         }
+        repeat_print_char(iFiletypeFormat, '-');
+        printf(" ");
+        repeat_print_char(iMediatypeFormat, '-');
+        printf(" ");
         printf(" %s", "----------------");
         printf("\n");
     }
@@ -215,6 +265,15 @@ void
 print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
 {
     int i;
+    int iType = 0;
+    long lEntrySize;
+    char *szEntryFilename;
+    char *szFiletype;
+    char *szMediatype;
+    char *szTmp;
+    char *szTmp2;
+    void *pEntryData;
+    OnsenPlugin_t *pPlugin;
     char szTmpFormat[MAX_FMT_STR_LEN];
 
     if (context->bVerbose) {
@@ -231,9 +290,46 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
                 }
             }
         }
+
+        szEntryFilename = pEntry->szFilename;
+        pEntryData = context->pInputFile + pEntry->iOffset;
+        lEntrySize = pEntry->iSize;
+
+        for (i = 0; i < context->iPluginsCount; i++) {
+            pPlugin = context->pPlugins[i];
+
+            iType = pPlugin->isFileSupported(1, szEntryFilename, pEntryData,
+                                                lEntrySize);
+            if (iType > 0) {
+                szTmp = calloc(1, MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 1, szTmp, MAX_COLUMN_SIZE);
+                szFiletype = szTmp;
+
+                szTmp2 = calloc(1, MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 2, szTmp2, MAX_COLUMN_SIZE);
+                szMediatype = szTmp2;
+                break;
+            } 
+        }
+
+        if (context->iPluginsCount == i) {
+            szFiletype = onsen_strdup(DEFAULT_FILE_TYPE);
+            szMediatype = onsen_strdup(DEFAULT_MEDIA_TYPE);
+            /* TODO : Fallback to Mediatype */
+        }
+
+        printf(szFiletypeFormat, szFiletype);
+        printf(szMediatypeFormat, szMediatype);
+
         printf("  ");
     }
     printf("%s\n", szFilename);
+    if (NULL != szFiletype) {
+        free(szFiletype);
+    }
+    if (NULL != szMediatype) {
+        free(szMediatype);
+    }
 }
 
 void
@@ -257,9 +353,9 @@ process_file(enum ActionMode mode)
     pInfo = onsen_new_archive_info();
     pInstance = context->pPlugins[0]->pInstance;
     rc = pInstance->getArchiveInfo(1,
-                                    context->pInputFile,
                                     context->lInputFileSize,
                                     context->szInputFilename,
+                                    context->pInputFile,
                                     pInfo);
     if (0 == rc) {
         if ((context->bVerbose) || (NULL == pInfo->a_pArchiveEntries[0])) {

@@ -175,10 +175,15 @@ check_fileformat_supported_by_plugins()
 
     for (i = 0; i < context->iPluginsCount; i++) {
         pPlugin = context->pPlugins[i];
-        if (pPlugin->isFileSupported(1,
+
+        /* Limits to Onsen Archive plugins */
+        if (pPlugin->iType == ONSEN_PLUGIN_ARCHIVE) {
+            if (pPlugin->isFileSupported(1,
+                                     context->szInputFilename,
                                      context->pInputFile,
                                      context->lInputFileSize)) {
-            return 1;
+                return 1;
+            }
         }
     }
 

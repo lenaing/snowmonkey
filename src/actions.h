@@ -46,6 +46,9 @@
 #define MAX_COLUMN_SIZE 255
 #define MAX_FMT_STR_LEN 10
 
+#define DEFAULT_FILE_TYPE "Unknown"
+#define DEFAULT_MEDIA_TYPE "application/x-octet-stream"
+
 void print_info(OnsenArchiveInfo_t *);
 void print_header(OnsenArchiveInfo_t *);
 void print_entry(OnsenArchiveEntry_t *, char *);
