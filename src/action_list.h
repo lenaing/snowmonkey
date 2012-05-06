@@ -31,16 +31,28 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __ACTIONS_H
-#define __ACTIONS_H
+#ifndef __ACTION_LIST_H
+#define __ACTION_LIST_H
 
 #include "globals.h"
 #include "context.h"
-#include "action_extract.h"
-#include "action_list.h"
-#include <libonsen/iconv_utils.h>
-#include <libonsen/shift_jis_utils.h>
+#include <libonsen/archive_plugin.h>
+#include <libonsen/string_utils.h>
 
-void process_file(enum ActionMode);
+#define MAX_COLUMN_SIZE 255
+#define MAX_FMT_STR_LEN 10
 
-#endif /* __ACTIONS_H */
+#define DEFAULT_FILE_TYPE "Unknown"
+#define DEFAULT_MEDIA_TYPE "application/x-octet-stream"
+
+int numlen(int);
+void repeat_print_char(int, char);
+
+void init_print_table(OnsenArchiveInfo_t *);
+void free_print_table(void);
+
+void print_info(OnsenArchiveInfo_t *);
+void print_table_header(OnsenArchiveInfo_t *);
+void print_entry(OnsenArchiveEntry_t *, char *);
+
+#endif /* __ACTION_LIST_H */

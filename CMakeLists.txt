@@ -53,6 +53,8 @@ SET(
         src/main.c
         src/cli.c
         src/actions.c
+        src/action_extract.c
+        src/action_list.c
         src/file.c
         src/plugins.c
         src/datafiles.c

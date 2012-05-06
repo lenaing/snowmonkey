@@ -31,16 +31,51 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __ACTIONS_H
-#define __ACTIONS_H
-
-#include "globals.h"
-#include "context.h"
 #include "action_extract.h"
-#include "action_list.h"
-#include <libonsen/iconv_utils.h>
-#include <libonsen/shift_jis_utils.h>
 
-void process_file(enum ActionMode);
+extern Context_t *context;
 
-#endif /* __ACTIONS_H */
+void
+extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
+                char *szFilename)
+{
+    char *szDestFilename = NULL;
+    char *szOutputDir = NULL;
+
+    if (NULL != context->szOutputDir) {
+        szOutputDir = context->szOutputDir;
+    } else {
+        szOutputDir = ".";
+    }
+
+    szDestFilename = onsen_build_filename(szOutputDir, szFilename);
+
+#if defined(__linux__) || defined(__GNU__)
+    /* Correct filenames for an UNIX system. */
+    onsen_str_chr_replace(szDestFilename, '\\', '/');
+#endif
+
+    /* Build directory tree. */
+    onsen_mkdir(szOutputDir);
+
+    if (context->bVerbose) {
+        /* Make some space for progress indicator */
+        printf("       ");
+    }
+
+    printf("%s", szFilename);
+
+    /* Write file to disk. */
+    pInstance->writeFile(1,
+                            context->pInputFile,
+                            pEntry->iOffset,
+                            0,
+                            szDestFilename,
+                            pEntry->iCompressedSize,
+                            (context->bVerbose) ? print_progress : NULL,
+                            pEntry);
+
+    printf("\n");
+
+    onsen_free(szDestFilename);
+}
