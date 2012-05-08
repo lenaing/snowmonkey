@@ -36,6 +36,7 @@
 
 #include "globals.h"
 #include <libonsen/plugin.h>
+#include <libonsen/file_utils.h>
 
 /* Available action modes. */
 enum ActionMode {
@@ -49,9 +50,7 @@ struct _Context_s
 {
     /* Archive files. */
     char *szInputFilename;                  /* Input filename.                */
-    unsigned char *pInputFile;              /* Current input file.            */
-    long lInputFileSize;                    /* Current input file size.       */
-    int fdInputFile;                        /* Current input file descriptor. */
+    OnsenFile_t *pInputFile;                /* Input file metadata.           */
 
     char *szOutputDir;                      /* Output directory.              */
 

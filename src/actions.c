@@ -47,6 +47,8 @@ process_file(enum ActionMode mode)
     int i, j;
     int rc = 0;
     int iQueriesCount = 0;
+    long lOffset = 0;
+    void *pFile;
     char *szTmp = NULL;
     char *szTmpFilename = NULL;
     char **a_szQueriedFilenames = NULL;
@@ -57,10 +59,19 @@ process_file(enum ActionMode mode)
     /* Retrieve archive info */
     pInfo = onsen_new_archive_info();
     pInstance = context->pPlugins[0]->pInstance;
-    rc = pInstance->getArchiveInfo(1,
-                                    context->lInputFileSize,
+
+    if (0 == context->pInputFile->bIsMmaped) {
+        lOffset = 0;
+        pFile = (void *)(&(context->pInputFile->iFd));
+    } else {
+        lOffset = context->pInputFile->lFileSize;
+        pFile = context->pInputFile->pData;
+    }
+
+    rc = pInstance->getArchiveInfo(context->pInputFile->bIsMmaped,
+                                    lOffset,
                                     context->szInputFilename,
-                                    context->pInputFile,
+                                    pFile,
                                     pInfo);
     if (0 == rc) {
         if ((context->bVerbose) || (NULL == pInfo->a_pArchiveEntries[0])) {

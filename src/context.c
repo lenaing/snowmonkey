@@ -40,7 +40,6 @@ new_context()
     pContext = malloc(sizeof(Context_t));
 
     pContext->szInputFilename = NULL;
-    pContext->pInputFile = NULL;
     pContext->szOutputDir = NULL;
     pContext->a_szQueriedFilenames = NULL;
     pContext->iQueriedFilenamesCount = 0;

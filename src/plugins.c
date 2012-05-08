@@ -172,16 +172,27 @@ check_fileformat_supported_by_plugins()
 {
     OnsenPlugin_t *pPlugin;
     int i;
+    long lOffset;
+    void *pFile;
 
     for (i = 0; i < context->iPluginsCount; i++) {
         pPlugin = context->pPlugins[i];
 
         /* Limits to Onsen Archive plugins */
         if (pPlugin->iType == ONSEN_PLUGIN_ARCHIVE) {
-            if (pPlugin->isFileSupported(1,
-                                     context->szInputFilename,
-                                     context->pInputFile,
-                                     context->lInputFileSize)) {
+
+            if (0 == context->pInputFile->bIsMmaped) {
+                pFile = (void *)(&(context->pInputFile->iFd));
+                lOffset = 0;
+            } else {
+                pFile = context->pInputFile->pData;
+                lOffset = context->pInputFile->lFileSize;
+            }
+
+            if (pPlugin->isFileSupported(context->pInputFile->bIsMmaped,
+                                            context->szInputFilename,
+                                            pFile,
+                                            lOffset)) {
                 return 1;
             }
         }

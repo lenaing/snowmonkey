@@ -41,6 +41,7 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
 {
     char *szDestFilename = NULL;
     char *szOutputDir = NULL;
+    void *pSrcFile;
 
     if (NULL != context->szOutputDir) {
         szOutputDir = context->szOutputDir;
@@ -66,8 +67,14 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
     printf("%s", szFilename);
 
     /* Write file to disk. */
-    pInstance->writeFile(1,
-                            context->pInputFile,
+    if (0 == context->pInputFile->bIsMmaped) {
+        pSrcFile = (void *)(&(context->pInputFile->iFd));
+    } else {
+        pSrcFile = context->pInputFile->pData;
+    }
+
+    pInstance->writeFile(context->pInputFile->bIsMmaped,
+                            pSrcFile,
                             pEntry->iOffset,
                             0,
                             szDestFilename,

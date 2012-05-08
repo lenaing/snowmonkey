@@ -80,15 +80,18 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
 {
     int i = 0;
     int j = 0;
-    int iTmpLen = 0;
     int iAddlFdsCount = 0;
+    int iTmpLen = 0;
     int iType = 0;
     int bUpdatedMediaTypeColumnSize = 0;
-    long lFileSize;
+    long lOffset = 0;
     char *szFilename;
     char *szTmp;
-    void *pData;
+    void *pFile;
     OnsenPlugin_t *pPlugin;
+
+
+
 
     if (NULL == pInfo->a_pArchiveEntries) {
         /* Invalid archive infos */
@@ -121,11 +124,20 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
         for (j = 0; j < context->iPluginsCount; j++) {
             pPlugin = context->pPlugins[j];
 
-            pData = context->pInputFile + pInfo->a_pArchiveEntries[i]->iOffset;
-            szFilename = pInfo->a_pArchiveEntries[i]->szFilename;
-            lFileSize = pInfo->a_pArchiveEntries[i]->iSize;
+            if (0 == context->pInputFile->bIsMmaped) {
+                pFile = (void *)(&(context->pInputFile->iFd));
+                lOffset = pInfo->a_pArchiveEntries[i]->iOffset;
+            } else {
+                pFile = context->pInputFile->pData;
+                lOffset = pInfo->a_pArchiveEntries[i]->iSize;
+            }
 
-            iType = pPlugin->isFileSupported(1, szFilename, pData, lFileSize);
+            szFilename = pInfo->a_pArchiveEntries[i]->szFilename;
+
+            iType = pPlugin->isFileSupported(context->pInputFile->bIsMmaped,
+                                                szFilename,
+                                                pFile,
+                                                lOffset);
 
             if (iType > 0) {
                 szTmp = calloc(1, MAX_COLUMN_SIZE);
@@ -219,13 +231,13 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
 {
     int i;
     int iType = 0;
-    long lEntrySize;
+    long lEntryOffset;
     char *szEntryFilename;
     char *szFiletype;
     char *szMediatype;
     char *szTmp;
     char *szTmp2;
-    void *pEntryData;
+    void *pEntryFile;
     OnsenPlugin_t *pPlugin;
     char szTmpFormat[MAX_FMT_STR_LEN];
 
@@ -245,14 +257,22 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
         }
 
         szEntryFilename = pEntry->szFilename;
-        pEntryData = context->pInputFile + pEntry->iOffset;
-        lEntrySize = pEntry->iSize;
+
+        if (0 == context->pInputFile->bIsMmaped) {
+            pEntryFile = (void *)(&(context->pInputFile->iFd));
+            lEntryOffset = pEntry->iOffset;
+        } else {
+            pEntryFile = context->pInputFile->pData;
+            lEntryOffset = pEntry->iSize;
+        }
 
         for (i = 0; i < context->iPluginsCount; i++) {
             pPlugin = context->pPlugins[i];
 
-            iType = pPlugin->isFileSupported(1, szEntryFilename, pEntryData,
-                                                lEntrySize);
+            iType = pPlugin->isFileSupported(context->pInputFile->bIsMmaped,
+                                                szEntryFilename,
+                                                pEntryFile,
+                                                lEntryOffset);
             if (iType > 0) {
                 szTmp = calloc(1, MAX_COLUMN_SIZE);
                 pPlugin->getPluginInfo(iType + 1, szTmp, MAX_COLUMN_SIZE);

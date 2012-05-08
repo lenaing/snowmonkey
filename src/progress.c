@@ -40,10 +40,6 @@ print_progress(int total, int current, void *data)
 
     (void) data;
 
-    if (((total - current) % 1000) != 0) {
-        return;
-    }
-
     f = (float)current / (float)total;
 
     printf("\r[%3.0f%%]", f*100);

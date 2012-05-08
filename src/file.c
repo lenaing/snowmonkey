@@ -40,14 +40,10 @@ load_file()
         if (context->bVerbose) {
             printf("|   Opening file '%s'\n", context->szInputFilename);
         }
-        context->fdInputFile = open(context->szInputFilename, O_RDONLY);
-        context->lInputFileSize = lseek(context->fdInputFile, 0, SEEK_END);
-        context->pInputFile = mmap(NULL,
-                                    context->lInputFileSize,
-                                    PROT_READ,
-                                    MAP_PRIVATE,
-                                    context->fdInputFile,
-                                    0);
+
+        context->pInputFile = onsen_new_disk_file(context->szInputFilename,
+                                                    RDONLY,
+                                                    0);
 
         if (NULL == context->pInputFile) {
             /* Failed to open given file.
@@ -63,7 +59,6 @@ unload_file()
         if (context->bVerbose) {
             printf("|   Closing file '%s'\n", context->szInputFilename);
         }
-        munmap(context->pInputFile, context->lInputFileSize);
-        close(context->fdInputFile);
+        onsen_free_disk_file(context->pInputFile);
     }
 }
