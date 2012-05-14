@@ -41,7 +41,10 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
 {
     char *szDestFilename = NULL;
     char *szOutputDir = NULL;
-    void *pSrcFile;
+    void *pSrcFile = NULL;
+    char *szTmpPath = NULL;
+    char *szTmpDir = NULL;
+    int bError = 0;
 
     if (NULL != context->szOutputDir) {
         szOutputDir = context->szOutputDir;
@@ -56,33 +59,47 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
     onsen_str_chr_replace(szDestFilename, '\\', '/');
 #endif
 
-    /* Build directory tree. */
-    onsen_mkdir(szOutputDir);
-
-    if (context->bVerbose) {
-        /* Make some space for progress indicator */
-        printf("       ");
+    szTmpPath = onsen_strdup(szDestFilename);
+    szTmpDir = dirname(szTmpPath);
+    if (-1 == (intptr_t)szTmpDir) {
+        perror(szTmpDir);
+        printf("Failed to get output directory of file '%s'.\n",
+                    szDestFilename);
+        bError = 1;
     }
 
-    printf("%s", szFilename);
+    if (0 == bError) {
+        /* Build directory tree for this file. */
+        if (0 == onsen_mkdir(szTmpDir)) {
+            printf("Failed to create output directory for file '%s'.\n",
+                    szDestFilename);
+        } else {
+            if (context->bVerbose) {
+                /* Make some space for progress indicator */
+                printf("       ");
+            }
 
-    /* Write file to disk. */
-    if (0 == context->pInputFile->bIsMmaped) {
-        pSrcFile = (void *)(&(context->pInputFile->iFd));
-    } else {
-        pSrcFile = context->pInputFile->pData;
+            printf("%s", szFilename);
+
+            /* Write file to disk. */
+            if (0 == context->pInputFile->bIsMmaped) {
+                pSrcFile = (void *)(&(context->pInputFile->iFd));
+            } else {
+                pSrcFile = context->pInputFile->pData;
+            }
+
+            pInstance->writeFile(context->pInputFile->bIsMmaped,
+                                    pSrcFile,
+                                    pEntry->iOffset,
+                                    0,
+                                    szDestFilename,
+                                    pEntry->iCompressedSize,
+                                    (context->bVerbose) ? print_progress : NULL,
+                                    pEntry);
+        }
     }
-
-    pInstance->writeFile(context->pInputFile->bIsMmaped,
-                            pSrcFile,
-                            pEntry->iOffset,
-                            0,
-                            szDestFilename,
-                            pEntry->iCompressedSize,
-                            (context->bVerbose) ? print_progress : NULL,
-                            pEntry);
-
     printf("\n");
 
+    onsen_free(szTmpPath);
     onsen_free(szDestFilename);
 }

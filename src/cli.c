@@ -281,7 +281,7 @@ initialize_cli_context()
 {
     context = new_context();
     context->szInputFilename = szOptionInputFilename;
-    context->szOutputDir = szOptionOutputDir;
+    context->szOutputDir = szOptionOutputDir; /* TODO Check output dir */
     context->a_szQueriedFilenames = a_szOptionQueriedFilenames;
     context->iQueriedFilenamesCount = iOptionQueriedFilenamesCount;
     context->szPluginsFilenames = szOptionPluginsFilenames;
