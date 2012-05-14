@@ -33,6 +33,20 @@
  */
 #include "cli.h"
 
+extern Context_t *context;
+
+int bOptionPrintUsage;
+int bOptionPrintVersion;
+int bOptionVerbose;
+int iOptionQueriedFilenamesCount;
+SnowmonkeyActionMode eAction;
+
+char *szOptionInputFilename;
+char *szOptionOutputDir;
+char *szOptionPluginsFilenames;
+char *szOptionPluginsDirs;
+char **a_szOptionQueriedFilenames;
+
 #ifdef HAS_LONG_OPT
     #include <getopt.h>
 
@@ -215,7 +229,7 @@ parse_options(int argc, char *argv[])
                 szOptionPluginsDirs = optarg;
                 break;
             case 't' : {
-                eAction = LIST;
+                eAction = SNOWMONKEY_LIST;
                 iMainOperationModeArgs++;
             }
                 break;
@@ -223,7 +237,7 @@ parse_options(int argc, char *argv[])
                 bOptionVerbose = 1;
                 break;
             case 'x' : {
-                eAction = EXTRACT;
+                eAction = SNOWMONKEY_EXTRACT;
                 iMainOperationModeArgs++;
             }
                 break;

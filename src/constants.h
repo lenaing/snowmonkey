@@ -31,36 +31,23 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#include "file.h"
+#ifndef __SNOWMONKEY_CONSTANTS_H
+#define __SNOWMONKEY_CONSTANTS_H
 
-extern Context_t *context;
+#define SNOWMONKEY_LIBONSEN_VERBOSITY 5
 
-void
-load_file()
-{
-    if (NULL != context->szInputFilename) {
-        if (context->bVerbose) {
-            printf("|   Opening file '%s'\n", context->szInputFilename);
-        }
+#define SNOWMONKEY_MAX_COLUMN_SIZE 255
+#define SNOWMONKEY_MAX_FORMAT_STRING_LENGTH 10
 
-        context->pInputFile = onsen_new_disk_file(context->szInputFilename,
-                                                    ONSEN_READ_ONLY,
-                                                    0);
+#define SNOWMONKEY_DEFAULT_FILE_TYPE "Unknown"
+#define SNOWMONKEY_DEFAULT_MEDIA_TYPE "application/x-octet-stream"
 
-        if (NULL == context->pInputFile) {
-            /* Failed to open given file.
-             * TODO */ 
-        }
-    }
-}
+#define SNOWMONKEY_MAX_SEARCH_RESULTS 255
+#define SNOWMONKEY_MAX_STRING_LENGTH 4096
+#define SNOWMONKEY_MAX_PLUGINS 255
 
-void
-unload_file()
-{
-    if (NULL != context->pInputFile) {
-        if (context->bVerbose) {
-            printf("|   Closing file '%s'\n", context->szInputFilename);
-        }
-        onsen_free_disk_file(context->pInputFile);
-    }
-}
+#define SNOWMONKEY_PLUGINS_NAMES_DELIMITER ","
+#define SNOWMONKEY_PLUGINS_BASE_DIR "plugins/"
+#define SNOWMONKEY_PLUGINS_EXTENSION ".so"
+
+#endif /* __SNOWMONKEY_CONSTANTS_H */

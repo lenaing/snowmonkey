@@ -31,17 +31,15 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __CLI_FILE_H
-#define __CLI_FILE_H
+#ifndef __SNOWMONKEY_FILE_H
+#define __SNOWMONKEY_FILE_H
 
 #include "globals.h"
 #include "context.h"
 #include <fcntl.h>
 #include <sys/mman.h>
 
-extern Context_t *context;
-
 void load_file();
 void unload_file();
 
-#endif /* __CLI_FILE_H */
+#endif /* __SNOWMONKEY_FILE_H */

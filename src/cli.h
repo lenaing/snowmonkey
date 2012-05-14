@@ -31,27 +31,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __CLI_H
-#define __CLI_H
+#ifndef __SNOWMONKEY_CLI_H
+#define __SNOWMONKEY_CLI_H
 
 #include "config.h"
 #include "globals.h"
 #include "context.h"
 #include <unistd.h>
-
-extern Context_t *context;
-
-int bOptionPrintUsage;
-int bOptionPrintVersion;
-int bOptionVerbose;
-int iOptionQueriedFilenamesCount;
-enum ActionMode eAction;
-
-char *szOptionInputFilename;
-char *szOptionOutputDir;
-char *szOptionPluginsFilenames;
-char *szOptionPluginsDirs;
-char **a_szOptionQueriedFilenames;
 
 void version();
 void help();
@@ -60,4 +46,4 @@ void parse_options(int, char **);
 
 void initialize_cli_context();
 void end_cli_context();
-#endif /* __CLI_H */
+#endif /* __SNOWMONKEY_CLI_H */

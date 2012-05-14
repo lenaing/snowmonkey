@@ -41,8 +41,6 @@
 #include "actions.h"
 #include <libonsen/onsen.h>
 
-#define LIBONSEN_VERBOSITY 5
-
 Context_t *context;
 
 void start()
@@ -59,7 +57,7 @@ void start()
                         SM_VERSION_RELEASE);
         printf("--------------------------------\n");
     }
-    onsen_init(LIBONSEN_VERBOSITY);
+    onsen_init(SNOWMONKEY_LIBONSEN_VERBOSITY);
 }
 
 void stop()

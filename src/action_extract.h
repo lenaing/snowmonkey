@@ -31,8 +31,8 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __ACTION_EXTRACT_H
-#define __ACTION_EXTRACT_H
+#ifndef __SNOWMONKEY_ACTION_EXTRACT_H
+#define __SNOWMONKEY_ACTION_EXTRACT_H
 
 #include "globals.h"
 #include "context.h"
@@ -42,4 +42,4 @@
 
 void extract_entry(OnsenArchivePlugin_t *, OnsenArchiveEntry_t *, char *);
 
-#endif /* __ACTION_EXTRACT_H */
+#endif /* __SNOWMONKEY_ACTION_EXTRACT_H */

@@ -31,21 +31,21 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __CONTEXT_H
-#define __CONTEXT_H
+#ifndef __SNOWMONKEY_CONTEXT_H
+#define __SNOWMONKEY_CONTEXT_H
 
 #include "globals.h"
 #include <libonsen/plugin.h>
 #include <libonsen/file_utils.h>
 
 /* Available action modes. */
-enum ActionMode {
-    LIST,
-    EXTRACT
+enum _SnowmonkeyActionMode_e {
+    SNOWMONKEY_LIST,
+    SNOWMONKEY_EXTRACT
 };
+typedef enum _SnowmonkeyActionMode_e SnowmonkeyActionMode;
 
 typedef struct _Context_s Context_t;
-
 struct _Context_s
 {
     /* Archive files. */
@@ -68,7 +68,7 @@ struct _Context_s
                                              * separated by commas.           */
 
     /* Actions options. */
-    enum ActionMode eAction;                /* Selected main action mode.     */
+    SnowmonkeyActionMode eAction;           /* Selected main action mode.     */
 
     /* Help options. */
     int bVerbose;                           /* Verbose argument detected.     */
@@ -77,4 +77,4 @@ struct _Context_s
 Context_t *new_context(void);
 void free_context(Context_t *);
 
-#endif /* __CONTEXT_H */
+#endif /* __SNOWMONKEY_CONTEXT_H */

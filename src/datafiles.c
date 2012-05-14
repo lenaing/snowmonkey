@@ -43,7 +43,7 @@ get_data_dirs(char *szComponent)
     char *szTmpEnv = NULL;
     char *szTmpXdg = NULL;
 
-    szDataDirs = calloc(MAX_STRING_LENGTH, sizeof(char));
+    szDataDirs = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
 
     /* Parse XDG_DATA_HOME first. */
     szTmpXdg = getenv("XDG_DATA_HOME");
@@ -99,8 +99,8 @@ find_data_files(char *szSearch, char *szDataDirs)
     char *szTmpDir = NULL;
     char **a_szFilenames = NULL;
 
-    a_szFilenames = calloc(MAX_SEARCH_RESULTS, sizeof(char *));
-    szTmpDir = calloc(MAX_STRING_LENGTH, sizeof(char));
+    a_szFilenames = calloc(SNOWMONKEY_MAX_SEARCH_RESULTS, sizeof(char *));
+    szTmpDir = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
 
     szCurDir = strtok_r(szDataDirs, szDelimiters, &pSaved);
     strcat(szTmpDir, szCurDir);

@@ -31,19 +31,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __PLUGINS_H
-#define __PLUGINS_H
+#ifndef __SNOWMONKEY_PLUGINS_H
+#define __SNOWMONKEY_PLUGINS_H
 
 #include "globals.h"
 #include "context.h"
 #include "datafiles.h"
 #include <fcntl.h>
-
-#define MAX_PLUGINS 255
-
-#define PLUGINS_NAMES_DELIMITER ","
-#define PLUGINS_BASE_DIR "plugins/"
-#define PLUGINS_EXTENSION ".so"
 
 extern Context_t *context;
 
@@ -52,4 +46,4 @@ void load_plugins(char *, char *);
 void unload_plugins();
 int check_fileformat_supported_by_plugins();
 
-#endif /* __PLUGINS_H */
+#endif /* __SNOWMONKEY_PLUGINS_H */

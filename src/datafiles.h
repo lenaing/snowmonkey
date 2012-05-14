@@ -31,8 +31,8 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __DATAFILES_H
-#define __DATAFILES_H
+#ifndef __SNOWMONKEY_DATAFILES_H
+#define __SNOWMONKEY_DATAFILES_H
 
 #include "globals.h"
 #include <wordexp.h>
@@ -40,11 +40,8 @@
 
 #include <libonsen/string_utils.h>
 
-#define MAX_SEARCH_RESULTS 255
-#define MAX_STRING_LENGTH 4096
-
 char *get_data_dirs(char *);
 char **find_data_files(char *, char *);
 int file_exists(char *);
 
-#endif /* __DATAFILES_H */
+#endif /* __SNOWMONKEY_DATAFILES_H */

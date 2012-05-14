@@ -38,7 +38,7 @@ extern char *OnsenEncodings[];
 extern Context_t *context;
 
 void
-process_file(enum ActionMode mode)
+process_file(SnowmonkeyActionMode mode)
 {
     OnsenArchivePlugin_t *pInstance = NULL;
     OnsenArchiveInfo_t *pInfo = NULL;
@@ -92,7 +92,7 @@ process_file(enum ActionMode mode)
         };
     }
 
-    if (mode == LIST) {
+    if (mode == SNOWMONKEY_LIST) {
         /* Output results */
         print_info(pInfo);
         init_print_table(pInfo);
@@ -125,7 +125,7 @@ process_file(enum ActionMode mode)
         if (0 != iQueriesCount) {
             for (j = 0; j < iQueriesCount; j++) {
                 if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
-                    if (mode == EXTRACT) {
+                    if (mode == SNOWMONKEY_EXTRACT) {
                         extract_entry(pInstance, pEntry, szTmpFilename);
                     } else {
                         print_entry(pEntry, szTmpFilename);
@@ -134,7 +134,7 @@ process_file(enum ActionMode mode)
                 }
             }
         } else {
-            if (mode == EXTRACT) {
+            if (mode == SNOWMONKEY_EXTRACT) {
                 extract_entry(pInstance, pEntry, szTmpFilename);
             } else {
                 print_entry(pEntry, szTmpFilename);
@@ -146,7 +146,7 @@ process_file(enum ActionMode mode)
         }
     }
 
-    if (mode == LIST) {
+    if (mode == SNOWMONKEY_LIST) {
         free_print_table();
     }
 

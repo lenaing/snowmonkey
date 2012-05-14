@@ -42,7 +42,7 @@ load_plugins_from_filenames(char **a_szFilenames)
     int iLoaded = 0;
     int rc;
 
-    a_pPlugins = calloc(MAX_PLUGINS, sizeof(OnsenPlugin_t *));
+    a_pPlugins = calloc(SNOWMONKEY_MAX_PLUGINS, sizeof(OnsenPlugin_t *));
 
     while (NULL != a_szFilenames[i]) {
         pPlugin = onsen_new_plugin();
@@ -99,34 +99,37 @@ load_plugins(char *szPluginsNames, char *szPluginsDirs)
 
         if (NULL == szPluginsDirs) {
             /* Search is "plugins/ *.so" for common directories */
-            szSearchCriteria = calloc(strlen(PLUGINS_BASE_DIR) + 3 +
-                                      strlen(PLUGINS_EXTENSION) + 1,
+            szSearchCriteria = calloc(strlen(SNOWMONKEY_PLUGINS_BASE_DIR) + 3 +
+                                      strlen(SNOWMONKEY_PLUGINS_EXTENSION) + 1,
                                       sizeof(char));
-            strcat(szSearchCriteria, PLUGINS_BASE_DIR);
+            strcat(szSearchCriteria, SNOWMONKEY_PLUGINS_BASE_DIR);
             strcat(szSearchCriteria, "*/*");
-            strcat(szSearchCriteria, PLUGINS_EXTENSION);
+            strcat(szSearchCriteria, SNOWMONKEY_PLUGINS_EXTENSION);
         } else {
             /* Search is "*.so" for all others directories */
-            szSearchCriteria = calloc(1 + strlen(PLUGINS_EXTENSION) + 1,
+            szSearchCriteria = calloc(1 + strlen(SNOWMONKEY_PLUGINS_EXTENSION)
+                                        + 1,
                                       sizeof(char));
             strcat(szSearchCriteria, "*");
-            strcat(szSearchCriteria, PLUGINS_EXTENSION);
+            strcat(szSearchCriteria, SNOWMONKEY_PLUGINS_EXTENSION);
         }
 
         a_szFilenames = find_data_files(szSearchCriteria, szDataDirs);
         free(szSearchCriteria);
     } else {
         /* Search for plugins with given names in directories */
-        a_szFilenames = calloc(MAX_SEARCH_RESULTS, sizeof(char *));
-        szCurFilename = strtok_r(szPluginsNames, PLUGINS_NAMES_DELIMITER, &rec);
+        a_szFilenames = calloc(SNOWMONKEY_MAX_SEARCH_RESULTS, sizeof(char *));
+        szCurFilename = strtok_r(szPluginsNames,
+                                    SNOWMONKEY_PLUGINS_NAMES_DELIMITER,
+                                    &rec);
 
         while (NULL != szCurFilename) {
-            szTmpFilename = calloc(MAX_STRING_LENGTH, sizeof(char));
+            szTmpFilename = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
             if (NULL == szPluginsDirs) {
-                strcat(szTmpFilename, PLUGINS_BASE_DIR);
+                strcat(szTmpFilename, SNOWMONKEY_PLUGINS_BASE_DIR);
             }
             strcat(szTmpFilename, szCurFilename);
-            strcat(szTmpFilename, PLUGINS_EXTENSION);
+            strcat(szTmpFilename, SNOWMONKEY_PLUGINS_EXTENSION);
 
             a_szTmpFilenames = find_data_files(szTmpFilename, szDataDirs);
 
@@ -140,7 +143,9 @@ load_plugins(char *szPluginsNames, char *szPluginsDirs)
             free(a_szTmpFilenames);
             free(szTmpFilename);
 
-            szCurFilename = strtok_r(NULL, PLUGINS_NAMES_DELIMITER, &rec);
+            szCurFilename = strtok_r(NULL,
+                                        SNOWMONKEY_PLUGINS_NAMES_DELIMITER,
+                                        &rec);
         }
     }
 

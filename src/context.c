@@ -49,7 +49,7 @@ new_context()
     pContext->szPluginsDirs = NULL;
     pContext->szPluginsFilenames = NULL;
 
-    pContext->eAction = LIST;
+    pContext->eAction = SNOWMONKEY_LIST;
     pContext->bVerbose = 0;
 
     return pContext;

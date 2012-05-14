@@ -31,13 +31,14 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __GLOBALS_H
-#define __GLOBALS_H
+#ifndef __SNOWMONKEY_GLOBALS_H
+#define __SNOWMONKEY_GLOBALS_H
 
 #ifndef _XOPEN_SOURCE
     #define _XOPEN_SOURCE 500   
 #endif
 
+#include "constants.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -48,4 +49,4 @@
 #include <assert.h>
 #include <unistd.h>
 
-#endif /* __GLOBALS_H */
+#endif /* __SNOWMONKEY_GLOBALS_H */

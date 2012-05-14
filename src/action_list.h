@@ -31,19 +31,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __ACTION_LIST_H
-#define __ACTION_LIST_H
+#ifndef __SNOWMONKEY_ACTION_LIST_H
+#define __SNOWMONKEY_ACTION_LIST_H
 
 #include "globals.h"
 #include "context.h"
 #include <libonsen/archive_plugin.h>
 #include <libonsen/string_utils.h>
-
-#define MAX_COLUMN_SIZE 255
-#define MAX_FMT_STR_LEN 10
-
-#define DEFAULT_FILE_TYPE "Unknown"
-#define DEFAULT_MEDIA_TYPE "application/x-octet-stream"
 
 int numlen(int);
 void repeat_print_char(int, char);
@@ -55,4 +49,4 @@ void print_info(OnsenArchiveInfo_t *);
 void print_table_header(OnsenArchiveInfo_t *);
 void print_entry(OnsenArchiveEntry_t *, char *);
 
-#endif /* __ACTION_LIST_H */
+#endif /* __SNOWMONKEY_ACTION_LIST_H */

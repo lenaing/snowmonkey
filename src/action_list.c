@@ -50,7 +50,7 @@ char szMediatypeFormat[100];
 int
 numlen(int i)
 {
-    char szTmp[MAX_COLUMN_SIZE];
+    char szTmp[SNOWMONKEY_MAX_COLUMN_SIZE];
     return sprintf(szTmp, "%d", i);
 }
 
@@ -89,9 +89,6 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
     char *szTmp;
     void *pFile;
     OnsenPlugin_t *pPlugin;
-
-
-
 
     if (NULL == pInfo->a_pArchiveEntries) {
         /* Invalid archive infos */
@@ -140,14 +137,16 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
                                                 lOffset);
 
             if (iType > 0) {
-                szTmp = calloc(1, MAX_COLUMN_SIZE);
-                pPlugin->getPluginInfo(iType + 1, szTmp, MAX_COLUMN_SIZE);
+                szTmp = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 1, szTmp,
+                                        SNOWMONKEY_MAX_COLUMN_SIZE);
                 iTmpLen = strlen(szTmp);
                 if (iTmpLen > iFiletypeFormat) {
                     iFiletypeFormat = iTmpLen;
                 }
 
-                pPlugin->getPluginInfo(iType + 2, szTmp, MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 2, szTmp,
+                                        SNOWMONKEY_MAX_COLUMN_SIZE);
                 iTmpLen = strlen(szTmp);
                 if (iTmpLen > iMediatypeFormat) {
                     iMediatypeFormat = iTmpLen;
@@ -160,7 +159,7 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
     }
 
     if (0 == bUpdatedMediaTypeColumnSize) {
-        iMediatypeFormat = strlen(DEFAULT_MEDIA_TYPE);
+        iMediatypeFormat = strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
     }
 
     sprintf(szSizeHeaderFormat, " %%%ds", iSizeHeaderLen);
@@ -182,7 +181,7 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
 {
     int i = 0;
 
-    char szTmpFormat[MAX_FMT_STR_LEN];
+    char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
     int iAddlFdsCount = 0;
 
     if (NULL == pInfo->a_pArchiveEntries) {
@@ -239,7 +238,7 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
     char *szTmp2;
     void *pEntryFile;
     OnsenPlugin_t *pPlugin;
-    char szTmpFormat[MAX_FMT_STR_LEN];
+    char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
 
     if (context->bVerbose) {
         printf("%012X", pEntry->iOffset);
@@ -274,20 +273,22 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
                                                 pEntryFile,
                                                 lEntryOffset);
             if (iType > 0) {
-                szTmp = calloc(1, MAX_COLUMN_SIZE);
-                pPlugin->getPluginInfo(iType + 1, szTmp, MAX_COLUMN_SIZE);
+                szTmp = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 1, szTmp,
+                                        SNOWMONKEY_MAX_COLUMN_SIZE);
                 szFiletype = szTmp;
 
-                szTmp2 = calloc(1, MAX_COLUMN_SIZE);
-                pPlugin->getPluginInfo(iType + 2, szTmp2, MAX_COLUMN_SIZE);
+                szTmp2 = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
+                pPlugin->getPluginInfo(iType + 2, szTmp2,
+                                        SNOWMONKEY_MAX_COLUMN_SIZE);
                 szMediatype = szTmp2;
                 break;
             } 
         }
 
         if (context->iPluginsCount == i) {
-            szFiletype = onsen_strdup(DEFAULT_FILE_TYPE);
-            szMediatype = onsen_strdup(DEFAULT_MEDIA_TYPE);
+            szFiletype = onsen_strdup(SNOWMONKEY_DEFAULT_FILE_TYPE);
+            szMediatype = onsen_strdup(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
             /* TODO : Fallback to Mediatype */
         }
 

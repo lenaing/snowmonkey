@@ -31,12 +31,12 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __FREEDESKTOP_H
-#define __FREEDESKTOP_H
+#ifndef __SNOWMONKEY_FREEDESKTOP_H
+#define __SNOWMONKEY_FREEDESKTOP_H
 
 #include "globals.h"
 
 void comply_to_freedesktop_specs(void);
 void comply_to_environment_variables(void);
 
-#endif /* __FREEDESKTOP_H */
+#endif /* __SNOWMONKEY_FREEDESKTOP_H */
