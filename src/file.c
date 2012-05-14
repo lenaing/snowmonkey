@@ -42,7 +42,7 @@ load_file()
         }
 
         context->pInputFile = onsen_new_disk_file(context->szInputFilename,
-                                                    RDONLY,
+                                                    ONSEN_READ_ONLY,
                                                     0);
 
         if (NULL == context->pInputFile) {
