@@ -38,8 +38,8 @@
 #include "context.h"
 #include "action_extract.h"
 #include "action_list.h"
-#include <libonsen/iconv_utils.h>
-#include <libonsen/shift_jis_utils.h>
+/* #include <libonsen/iconv_utils.h>
+#include <libonsen/shift_jis_utils.h> */
 
 void process_file(SnowmonkeyActionMode);
 

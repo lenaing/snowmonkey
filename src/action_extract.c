@@ -82,18 +82,18 @@ extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
             printf("%s", szFilename);
 
             /* Write file to disk. */
-            if (0 == context->pInputFile->bIsMmaped) {
-                pSrcFile = (void *)(&(context->pInputFile->iFd));
+            if (0 == context->pInputFile->isMmaped) {
+                pSrcFile = (void *)(&(context->pInputFile->fd));
             } else {
-                pSrcFile = context->pInputFile->pData;
+                pSrcFile = context->pInputFile->data;
             }
 
-            pInstance->writeFile(context->pInputFile->bIsMmaped,
+            pInstance->writeFile(context->pInputFile->isMmaped,
                                     pSrcFile,
-                                    pEntry->iOffset,
+                                    pEntry->offset,
                                     0,
                                     szDestFilename,
-                                    pEntry->iCompressedSize,
+                                    pEntry->compressedSize,
                                     (context->bVerbose) ? print_progress : NULL,
                                     pEntry);
         }

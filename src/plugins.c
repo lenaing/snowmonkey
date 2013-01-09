@@ -184,17 +184,17 @@ check_fileformat_supported_by_plugins()
         pPlugin = context->pPlugins[i];
 
         /* Limits to Onsen Archive plugins */
-        if (pPlugin->iType == ONSEN_PLUGIN_ARCHIVE) {
+        if (pPlugin->type == ONSEN_PLUGIN_ARCHIVE) {
 
-            if (0 == context->pInputFile->bIsMmaped) {
-                pFile = (void *)(&(context->pInputFile->iFd));
+            if (0 == context->pInputFile->isMmaped) {
+                pFile = (void *)(&(context->pInputFile->fd));
                 lOffset = 0;
             } else {
-                pFile = context->pInputFile->pData;
-                lOffset = context->pInputFile->lFileSize;
+                pFile = context->pInputFile->data;
+                lOffset = context->pInputFile->fileSize;
             }
 
-            if (pPlugin->isFileSupported(context->pInputFile->bIsMmaped,
+            if (pPlugin->isFileSupported(context->pInputFile->isMmaped,
                                             context->szInputFilename,
                                             pFile,
                                             lOffset)) {

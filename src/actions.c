@@ -33,14 +33,14 @@
  */
 #include "actions.h"
 
-iconv_t pIconv = NULL;
+/* iconv_t pIconv = NULL; */
 extern char *OnsenEncodings[];
 extern Context_t *context;
 
 void
 process_file(SnowmonkeyActionMode mode)
 {
-    OnsenArchivePlugin_t *pInstance = NULL;
+    OnsenArchivePlugin_t *instance = NULL;
     OnsenArchiveInfo_t *pInfo = NULL;
     OnsenArchiveEntry_t *pEntry = NULL;
     enum OnsenEncoding pEncoding = ASCII;
@@ -58,23 +58,23 @@ process_file(SnowmonkeyActionMode mode)
 
     /* Retrieve archive info */
     pInfo = onsen_new_archive_info();
-    pInstance = context->pPlugins[0]->pInstance;
+    instance = context->pPlugins[0]->instance;
 
-    if (0 == context->pInputFile->bIsMmaped) {
+    if (0 == context->pInputFile->isMmaped) {
         lOffset = 0;
-        pFile = (void *)(&(context->pInputFile->iFd));
+        pFile = (void *)(&(context->pInputFile->fd));
     } else {
-        lOffset = context->pInputFile->lFileSize;
-        pFile = context->pInputFile->pData;
+        lOffset = context->pInputFile->fileSize;
+        pFile = context->pInputFile->data;
     }
 
-    rc = pInstance->getArchiveInfo(context->pInputFile->bIsMmaped,
+    rc = instance->getArchiveInfo(context->pInputFile->isMmaped,
                                     lOffset,
                                     context->szInputFilename,
                                     pFile,
                                     pInfo);
     if (0 == rc) {
-        if ((context->bVerbose) || (NULL == pInfo->a_pArchiveEntries[0])) {
+        if ((context->bVerbose) || (NULL == pInfo->archiveEntries[0])) {
             fprintf(stderr, "|   Failed to read archive info.\n");
         }
         onsen_free_archive_info(pInfo);
@@ -82,12 +82,12 @@ process_file(SnowmonkeyActionMode mode)
     }
 
     /* Iconv stuff */
-    pEncoding = pInfo->eArchiveFilenamesEncoding;
+    pEncoding = pInfo->archiveFilenamesEncoding;
     switch(pEncoding) {
-        case SHIFT_JIS : {
+        /*case SHIFT_JIS : {
             pIconv = onsen_iconv_init("UTF-8", OnsenEncodings[pEncoding]);
             break;
-        };
+        };*/
         default : {
         };
     }
@@ -99,26 +99,26 @@ process_file(SnowmonkeyActionMode mode)
         print_table_header(pInfo);
     }
 
-    for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
-        if (NULL == pInfo->a_pArchiveEntries) {
+    for (i = 1; i <= pInfo->archiveEntriesCount; i++) {
+        if (NULL == pInfo->archiveEntries) {
             /* No archive entry defined. Stop here.*/
             break;
         }
 
-        pEntry = pInfo->a_pArchiveEntries[i];
+        pEntry = pInfo->archiveEntries[i];
         if (NULL == pEntry) {
             /* Invalid entry, check next. */
             continue;
         }
 
         switch(pEncoding) {
-            case SHIFT_JIS : {
-                szTmp = onsen_shift_jis2utf8(pIconv, pEntry->szFilename);
+            /*case SHIFT_JIS : {
+                szTmp = onsen_shift_jis2utf8(pIconv, pEntry->filename);
                 szTmpFilename = szTmp;
                 break;
-            };
+            };*/
             default : {
-                szTmpFilename = (char *)(pEntry->szFilename);
+                szTmpFilename = (char *)(pEntry->filename);
             };
         }
 
@@ -126,7 +126,7 @@ process_file(SnowmonkeyActionMode mode)
             for (j = 0; j < iQueriesCount; j++) {
                 if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
                     if (mode == SNOWMONKEY_EXTRACT) {
-                        extract_entry(pInstance, pEntry, szTmpFilename);
+                        extract_entry(instance, pEntry, szTmpFilename);
                     } else {
                         print_entry(pEntry, szTmpFilename);
                     }
@@ -135,7 +135,7 @@ process_file(SnowmonkeyActionMode mode)
             }
         } else {
             if (mode == SNOWMONKEY_EXTRACT) {
-                extract_entry(pInstance, pEntry, szTmpFilename);
+                extract_entry(instance, pEntry, szTmpFilename);
             } else {
                 print_entry(pEntry, szTmpFilename);
             }
@@ -150,8 +150,8 @@ process_file(SnowmonkeyActionMode mode)
         free_print_table();
     }
 
-    if (pIconv != NULL) {
+    /*if (pIconv != NULL) {
         onsen_iconv_cleanup(pIconv);
-    }
+    }*/
     onsen_free_archive_info(pInfo);
 }

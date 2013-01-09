@@ -39,6 +39,7 @@
 #include "progress.h"
 #include <libonsen/archive_plugin.h>
 #include <libonsen/string_utils.h>
+#include <libgen.h>
 
 void extract_entry(OnsenArchivePlugin_t *, OnsenArchiveEntry_t *, char *);
 

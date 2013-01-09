@@ -35,7 +35,7 @@
 
 extern Context_t *context;
 
-int iSizeHeaderLen = 12;
+int sizeHeaderLen = 12;
 int iCompSizeHeaderLen = 12;
 int iFiletypeFormat = 12;
 int iMediatypeFormat = 12;
@@ -69,8 +69,8 @@ print_info(OnsenArchiveInfo_t *pInfo)
 {
     if (context->bVerbose) {
         printf("|   Archive filename = %s\n", context->szInputFilename);
-        printf("|   Archive size = %ld bytes\n", pInfo->lArchiveFileSize);
-        printf("|   Archive entries count = %d\n", pInfo->iArchiveEntriesCount);
+        printf("|   Archive size = %ld bytes\n", pInfo->archiveFileSize);
+        printf("|   Archive entries count = %d\n", pInfo->archiveEntriesCount);
         printf("|\n");
     }
 }
@@ -80,39 +80,39 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
 {
     int i = 0;
     int j = 0;
-    int iAddlFdsCount = 0;
+    int addlFdsCount = 0;
     int iTmpLen = 0;
     int iType = 0;
     int bUpdatedMediaTypeColumnSize = 0;
     long lOffset = 0;
-    char *szFilename;
+    char *filename;
     char *szTmp;
     void *pFile;
     OnsenPlugin_t *pPlugin;
 
-    if (NULL == pInfo->a_pArchiveEntries) {
+    if (NULL == pInfo->archiveEntries) {
         /* Invalid archive infos */
         return;
     }
 
-    iAddlFdsCount = pInfo->a_pArchiveEntries[0]->iAddlFdsCount;
-    if (0 != iAddlFdsCount) {
-        a_iAddFieldsHeadersLen = calloc(iAddlFdsCount, sizeof(int));
+    addlFdsCount = pInfo->archiveEntries[0]->addlFdsCount;
+    if (0 != addlFdsCount) {
+        a_iAddFieldsHeadersLen = calloc(addlFdsCount, sizeof(int));
     }
 
-    for (i = 1; i <= pInfo->iArchiveEntriesCount; i++) {
-        iTmpLen = numlen(pInfo->a_pArchiveEntries[i]->iSize);
-        if (iTmpLen > iSizeHeaderLen) {
-            iSizeHeaderLen = iTmpLen;
+    for (i = 1; i <= pInfo->archiveEntriesCount; i++) {
+        iTmpLen = numlen(pInfo->archiveEntries[i]->size);
+        if (iTmpLen > sizeHeaderLen) {
+            sizeHeaderLen = iTmpLen;
         }
 
-        iTmpLen = numlen(pInfo->a_pArchiveEntries[i]->iCompressedSize);
+        iTmpLen = numlen(pInfo->archiveEntries[i]->compressedSize);
         if (iTmpLen > iCompSizeHeaderLen) {
             iCompSizeHeaderLen = iTmpLen;
         }
 
-        for (j = 0; j < iAddlFdsCount; j++) {
-            iTmpLen = strlen(pInfo->a_pArchiveEntries[i]->a_szAddlFds[j]);
+        for (j = 0; j < addlFdsCount; j++) {
+            iTmpLen = strlen(pInfo->archiveEntries[i]->addlFds[j]);
             if (iTmpLen > a_iAddFieldsHeadersLen[j]) {
                 a_iAddFieldsHeadersLen[j] = iTmpLen + 1;
             }
@@ -121,18 +121,18 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
         for (j = 0; j < context->iPluginsCount; j++) {
             pPlugin = context->pPlugins[j];
 
-            if (0 == context->pInputFile->bIsMmaped) {
-                pFile = (void *)(&(context->pInputFile->iFd));
-                lOffset = pInfo->a_pArchiveEntries[i]->iOffset;
+            if (0 == context->pInputFile->isMmaped) {
+                pFile = (void *)(&(context->pInputFile->fd));
+                lOffset = pInfo->archiveEntries[i]->offset;
             } else {
-                pFile = context->pInputFile->pData;
-                lOffset = pInfo->a_pArchiveEntries[i]->iSize;
+                pFile = context->pInputFile->data;
+                lOffset = pInfo->archiveEntries[i]->size;
             }
 
-            szFilename = pInfo->a_pArchiveEntries[i]->szFilename;
+            filename = pInfo->archiveEntries[i]->filename;
 
-            iType = pPlugin->isFileSupported(context->pInputFile->bIsMmaped,
-                                                szFilename,
+            iType = pPlugin->isFileSupported(context->pInputFile->isMmaped,
+                                                filename,
                                                 pFile,
                                                 lOffset);
 
@@ -162,9 +162,9 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
         iMediatypeFormat = strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
     }
 
-    sprintf(szSizeHeaderFormat, " %%%ds", iSizeHeaderLen);
+    sprintf(szSizeHeaderFormat, " %%%ds", sizeHeaderLen);
     sprintf(szCompSizeHeaderFormat, " %%%ds", iCompSizeHeaderLen);
-    sprintf(szSizeValueFormat, " %%%dd", iSizeHeaderLen);
+    sprintf(szSizeValueFormat, " %%%dd", sizeHeaderLen);
     sprintf(szCompSizeValueFormat, " %%%dd", iCompSizeHeaderLen);
     sprintf(szFiletypeFormat, " %%%ds", iFiletypeFormat);
     sprintf(szMediatypeFormat, " %%%ds", iMediatypeFormat);
@@ -182,15 +182,15 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
     int i = 0;
 
     char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
-    int iAddlFdsCount = 0;
+    int addlFdsCount = 0;
 
-    if (NULL == pInfo->a_pArchiveEntries) {
+    if (NULL == pInfo->archiveEntries) {
         /* Invalid archive infos */
         return;
     }
 
     if (context->bVerbose) {
-        iAddlFdsCount = pInfo->a_pArchiveEntries[0]->iAddlFdsCount;
+        addlFdsCount = pInfo->archiveEntries[0]->addlFdsCount;
 
         /* Headers */
         printf("%12s", "Offset");
@@ -198,9 +198,9 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
         printf("%12s", "Compressed");
         printf(szCompSizeHeaderFormat, "Comp. Size");
         printf("%12s", "Encrypted");
-        for (i = 0; i < iAddlFdsCount; i++) {
+        for (i = 0; i < addlFdsCount; i++) {
             sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
-            printf(szTmpFormat, pInfo->a_pArchiveEntries[0]->a_szAddlFds[i]);
+            printf(szTmpFormat, pInfo->archiveEntries[0]->addlFds[i]);
         }
         printf(szFiletypeFormat, "File type");
         printf(szMediatypeFormat, "Media type");
@@ -209,11 +209,11 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
 
         /* Headers separation */
         printf("%12s ", "-----------");
-        repeat_print_char(iSizeHeaderLen, '-');
+        repeat_print_char(sizeHeaderLen, '-');
         printf("%12s ", "-----------");
         repeat_print_char(iCompSizeHeaderLen, '-');
         printf("%12s ", "-----------");
-        for (i = 0; i < iAddlFdsCount; i++) {
+        for (i = 0; i < addlFdsCount; i++) {
             repeat_print_char(a_iAddFieldsHeadersLen[i], '-');
         }
         repeat_print_char(iFiletypeFormat, '-');
@@ -226,7 +226,7 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
 }
 
 void
-print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
+print_entry(OnsenArchiveEntry_t *pEntry, char *filename)
 {
     int i;
     int iType = 0;
@@ -241,34 +241,34 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
     char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
 
     if (context->bVerbose) {
-        printf("%012X", pEntry->iOffset);
-        printf(szSizeValueFormat, pEntry->iSize);
-        printf("%12s", (pEntry->bCompressed) ? "yes" : "no");
-        printf(szCompSizeValueFormat, pEntry->iCompressedSize);
-        printf("%12s", (pEntry->bEncrypted) ? "yes" : "no");
-        if (0 != pEntry->iAddlFdsCount) {
-            for (i = 0; i < pEntry->iAddlFdsCount; i++) {
-                if (NULL != pEntry->a_szAddlFds[i]) {
+        printf("%012X", pEntry->offset);
+        printf(szSizeValueFormat, pEntry->size);
+        printf("%12s", (pEntry->isCompressed) ? "yes" : "no");
+        printf(szCompSizeValueFormat, pEntry->compressedSize);
+        printf("%12s", (pEntry->isEncrypted) ? "yes" : "no");
+        if (0 != pEntry->addlFdsCount) {
+            for (i = 0; i < pEntry->addlFdsCount; i++) {
+                if (NULL != pEntry->addlFds[i]) {
                     sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
-                    printf(szTmpFormat, pEntry->a_szAddlFds[i]);
+                    printf(szTmpFormat, pEntry->addlFds[i]);
                 }
             }
         }
 
-        szEntryFilename = pEntry->szFilename;
+        szEntryFilename = pEntry->filename;
 
-        if (0 == context->pInputFile->bIsMmaped) {
-            pEntryFile = (void *)(&(context->pInputFile->iFd));
-            lEntryOffset = pEntry->iOffset;
+        if (0 == context->pInputFile->isMmaped) {
+            pEntryFile = (void *)(&(context->pInputFile->fd));
+            lEntryOffset = pEntry->offset;
         } else {
-            pEntryFile = context->pInputFile->pData;
-            lEntryOffset = pEntry->iSize;
+            pEntryFile = context->pInputFile->data;
+            lEntryOffset = pEntry->size;
         }
 
         for (i = 0; i < context->iPluginsCount; i++) {
             pPlugin = context->pPlugins[i];
 
-            iType = pPlugin->isFileSupported(context->pInputFile->bIsMmaped,
+            iType = pPlugin->isFileSupported(context->pInputFile->isMmaped,
                                                 szEntryFilename,
                                                 pEntryFile,
                                                 lEntryOffset);
@@ -297,7 +297,7 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *szFilename)
 
         printf("  ");
     }
-    printf("%s\n", szFilename);
+    printf("%s\n", filename);
     if (NULL != szFiletype) {
         free(szFiletype);
     }

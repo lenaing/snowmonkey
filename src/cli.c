@@ -71,7 +71,7 @@ version()
 {
     static char const version[] = "snowmonkey v%d.%d%s\n\
 Copyright (C) 2011, 2012 Etienne 'lenaing' Girondel.\n\
-CeCILL License: \n\
+CeCILL License:\n\
     FR : <http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt>.\n\
     EN : <http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt>.\n\
 This is free software: you are free to change and redistribute it.\n\
@@ -87,7 +87,7 @@ void
 help()
 {
     /* Help start. */
-    static char const help[] = "Usage: snowmonkey [OPTION...] [FILE]...\n\
+    static char const help[] = "Usage: snowmonkey [OPTION...] [FILES]...\n\
 snowmonkey can list or restore individual files from a disk archive.\n\
 \n\
 Examples:\n\
@@ -150,7 +150,7 @@ void
 usage()
 {
     static char const optionsUsage[] = "\
-Usage: snowmonkey [-txhv?] [-f ARCHIVE]\n\
+Usage: snowmonkey [-txhv?] [-f ARCHIVE] [FILES]\n\
             [-C DIR]\n";
 #ifdef HAS_LONG_OPT
     static char const longOptionsUsage[] = "\
