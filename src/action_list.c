@@ -32,7 +32,7 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 #include "action_list.h"
-
+#include <magic.h>
 extern Context_t *context;
 
 int sizeHeaderLen = 12;
@@ -83,18 +83,24 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
     int addlFdsCount = 0;
     int iTmpLen = 0;
     int iType = 0;
+    int bUpdatedFileTypeColumnSize = 0;
     int bUpdatedMediaTypeColumnSize = 0;
     long lOffset = 0;
     char *filename;
     char *szTmp;
     void *pFile;
     OnsenPlugin_t *pPlugin;
+    /*magic_t cookie;*/
 
     if (NULL == pInfo->archiveEntries) {
         /* Invalid archive infos */
         return;
     }
 
+    /*cookie = magic_open(MAGIC_NONE);
+    if (0 != magic_load(cookie, NULL)) {
+        printf("cannot load magic database - %s\n", magic_error(cookie));
+    }*/
     addlFdsCount = pInfo->archiveEntries[0]->addlFdsCount;
     if (0 != addlFdsCount) {
         a_iAddFieldsHeadersLen = calloc(addlFdsCount, sizeof(int));
@@ -125,7 +131,7 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
                 pFile = (void *)(&(context->pInputFile->fd));
                 lOffset = pInfo->archiveEntries[i]->offset;
             } else {
-                pFile = context->pInputFile->data;
+                pFile = ((unsigned char *)(context->pInputFile->data)) + pInfo->archiveEntries[i]->offset;
                 lOffset = pInfo->archiveEntries[i]->size;
             }
 
@@ -152,15 +158,50 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
                     iMediatypeFormat = iTmpLen;
                 }
                 free(szTmp);
+                bUpdatedFileTypeColumnSize = 1;
                 bUpdatedMediaTypeColumnSize = 1;
             }
             /* TODO : Fallback to Mediatype */
         }
+
+        /*if (j == context->iPluginsCount) {
+
+            if (1 == context->pInputFile->isMmaped) {
+                magic_setflags(cookie, MAGIC_NONE);
+                szTmp = onsen_strdup(magic_buffer(cookie, (const void *)(context->pInputFile->data + pInfo->archiveEntries[i]->offset), pInfo->archiveEntries[i]->size));
+                iTmpLen = strlen(szTmp);
+                if (iTmpLen > iFiletypeFormat) {
+                    iFiletypeFormat = iTmpLen;
+                }
+                free(szTmp);
+                magic_setflags(cookie, MAGIC_MIME_TYPE);
+                szTmp = onsen_strdup(magic_buffer(cookie, (const void *)(context->pInputFile->data + pInfo->archiveEntries[i]->offset), pInfo->archiveEntries[i]->size));
+                iTmpLen = strlen(szTmp);
+                if (iTmpLen > iMediatypeFormat) {
+                    iMediatypeFormat = iTmpLen;
+                }
+                free(szTmp);
+                bUpdatedMediaTypeColumnSize = 1;
+            }
+
+        }*/
+
+    }
+
+    if (0 == bUpdatedFileTypeColumnSize) {
+        if ((int)strlen(SNOWMONKEY_DEFAULT_FILE_TYPE) > iFiletypeFormat) {
+            iFiletypeFormat = strlen(SNOWMONKEY_DEFAULT_FILE_TYPE);
+        }
     }
 
     if (0 == bUpdatedMediaTypeColumnSize) {
-        iMediatypeFormat = strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
+        if ((int)strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE) > iMediatypeFormat) {
+            iMediatypeFormat = strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
+        }
     }
+
+
+    /*magic_close(cookie);*/
 
     sprintf(szSizeHeaderFormat, " %%%ds", sizeHeaderLen);
     sprintf(szCompSizeHeaderFormat, " %%%ds", iCompSizeHeaderLen);
@@ -229,16 +270,22 @@ void
 print_entry(OnsenArchiveEntry_t *pEntry, char *filename)
 {
     int i;
-    int iType = 0;
+    int iType = -1;
     long lEntryOffset;
-    char *szEntryFilename;
-    char *szFiletype;
-    char *szMediatype;
-    char *szTmp;
-    char *szTmp2;
+    char *szEntryFilename = NULL;
+    char *szFiletype = NULL;
+    char *szMediatype = NULL;
+    char *szTmp = NULL;
+    char *szTmp2 = NULL;
     void *pEntryFile;
     OnsenPlugin_t *pPlugin;
+    /*magic_t cookie;*/
     char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
+
+    /*cookie = magic_open(MAGIC_NONE);
+    if (0 != magic_load(cookie, NULL)) {
+        printf("cannot load magic database - %s\n", magic_error(cookie));
+    }*/
 
     if (context->bVerbose) {
         printf("%012X", pEntry->offset);
@@ -261,7 +308,7 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *filename)
             pEntryFile = (void *)(&(context->pInputFile->fd));
             lEntryOffset = pEntry->offset;
         } else {
-            pEntryFile = context->pInputFile->data;
+            pEntryFile = ((unsigned char *)(context->pInputFile->data)) + pEntry->offset;
             lEntryOffset = pEntry->size;
         }
 
@@ -272,24 +319,40 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *filename)
                                                 szEntryFilename,
                                                 pEntryFile,
                                                 lEntryOffset);
+
             if (iType > 0) {
                 szTmp = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
-                pPlugin->getPluginInfo(iType + 1, szTmp,
+                pPlugin->getPluginInfo(iType, szTmp,
                                         SNOWMONKEY_MAX_COLUMN_SIZE);
                 szFiletype = szTmp;
 
                 szTmp2 = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
                 pPlugin->getPluginInfo(iType + 2, szTmp2,
-                                        SNOWMONKEY_MAX_COLUMN_SIZE);
+                                    SNOWMONKEY_MAX_COLUMN_SIZE);
                 szMediatype = szTmp2;
                 break;
             } 
         }
 
-        if (context->iPluginsCount == i) {
+        /*if (i == context->iPluginsCount) {
+
+            if (1 == context->pInputFile->isMmaped) {
+                magic_setflags(cookie, MAGIC_NONE);
+                szTmp = onsen_strdup(magic_buffer(cookie, (const void *)(context->pInputFile->data + pEntry->offset), pEntry->size));
+                szFiletype = szTmp;
+                
+                magic_setflags(cookie, MAGIC_MIME_TYPE);
+                szTmp2 = onsen_strdup(magic_buffer(cookie, (const void *)(context->pInputFile->data + pEntry->offset), pEntry->size));
+                szMediatype = szTmp2;
+            }
+
+        }*/
+
+        if (NULL == szFiletype) {
             szFiletype = onsen_strdup(SNOWMONKEY_DEFAULT_FILE_TYPE);
+        }
+        if (NULL == szMediatype) {
             szMediatype = onsen_strdup(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
-            /* TODO : Fallback to Mediatype */
         }
 
         printf(szFiletypeFormat, szFiletype);
@@ -297,6 +360,9 @@ print_entry(OnsenArchiveEntry_t *pEntry, char *filename)
 
         printf("  ");
     }
+
+    /*magic_close(cookie);*/
+
     printf("%s\n", filename);
     if (NULL != szFiletype) {
         free(szFiletype);

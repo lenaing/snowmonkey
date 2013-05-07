@@ -179,6 +179,41 @@ check_fileformat_supported_by_plugins()
     int i;
     long lOffset;
     void *pFile;
+    int res = 0;
+
+    for (i = 0; i < context->iPluginsCount; i++) {
+        pPlugin = context->pPlugins[i];
+
+        /* Limits to Onsen Archive plugins */
+        if (pPlugin->type == ONSEN_PLUGIN_ARCHIVE) {
+
+            if (0 == context->pInputFile->isMmaped) {
+                pFile = (void *)(&(context->pInputFile->fd));
+                lOffset = 0;
+            } else {
+                pFile = context->pInputFile->data;
+                lOffset = context->pInputFile->fileSize;
+            }
+
+            if (pPlugin->isFileSupported(context->pInputFile->isMmaped,
+                                            context->szInputFilename,
+                                            pFile,
+                                            lOffset) > 0) {
+                res++;
+            }
+        }
+    }
+
+    return res;
+}
+
+void
+print_available_plugins()
+{
+    OnsenPlugin_t *pPlugin;
+    int i;
+    long lOffset;
+    void *pFile;
 
     for (i = 0; i < context->iPluginsCount; i++) {
         pPlugin = context->pPlugins[i];
@@ -198,10 +233,10 @@ check_fileformat_supported_by_plugins()
                                             context->szInputFilename,
                                             pFile,
                                             lOffset)) {
-                return 1;
+                printf("[%d] %s\n", i, pPlugin->name);
             }
         }
     }
-
-    return 0;
+    
+    printf("|   Selected plugin [%d] %s\n", context->iSelectedPlugin, context->pPlugins[context->iSelectedPlugin]->name);
 }

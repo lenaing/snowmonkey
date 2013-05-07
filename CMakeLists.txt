@@ -61,12 +61,14 @@ SET(
         src/context.c
         src/freedesktop.c
         src/progress.c
+        src/iconv_utils.c
+        src/shift_jis_utils.c
 )
 
 # Usual stuff
 ADD_DEFINITIONS(-W -Wall -ansi -pedantic -g3)
 ADD_DEFINITIONS(-DHAS_LONG_OPT)
 ADD_EXECUTABLE(snowmonkey ${snowmonkey_SRCS})
-TARGET_LINK_LIBRARIES(snowmonkey onsen dl)
+TARGET_LINK_LIBRARIES(snowmonkey onsen dl magic)
 
 INSTALL(TARGETS snowmonkey DESTINATION bin)

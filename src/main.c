@@ -71,6 +71,7 @@ void stop()
 
 void run()
 {
+    int nbPlugins = 0;
     comply_to_freedesktop_specs();
     load_plugins(context->szPluginsFilenames, context->szPluginsDirs);
 
@@ -83,7 +84,11 @@ void run()
     } else {
         if (0 == file_exists(context->szInputFilename)) {
             load_file();
-            if (1 == check_fileformat_supported_by_plugins()) {
+            nbPlugins = check_fileformat_supported_by_plugins();
+            if (nbPlugins > 0) {
+                if (nbPlugins > 1) {
+                    print_available_plugins();
+                }
                 process_file(context->eAction);
             }
             unload_file();

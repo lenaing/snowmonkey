@@ -45,5 +45,5 @@ void load_plugins_from_filenames(char **);
 void load_plugins(char *, char *);
 void unload_plugins();
 int check_fileformat_supported_by_plugins();
-
+void print_available_plugins();
 #endif /* __SNOWMONKEY_PLUGINS_H */

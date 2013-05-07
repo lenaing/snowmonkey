@@ -39,6 +39,7 @@ int bOptionPrintUsage;
 int bOptionPrintVersion;
 int bOptionVerbose;
 int iOptionQueriedFilenamesCount;
+int iOptionSelectPlugin = 0;
 SnowmonkeyActionMode eAction;
 
 char *szOptionInputFilename;
@@ -54,6 +55,7 @@ char **a_szOptionQueriedFilenames;
         { "extract",        0, NULL, 'x' },
         { "get",            0, NULL, 'x' },
         { "file",           1, NULL, 'f' },
+        { "plugin",         1, NULL, 'n' },
         { "plugins",        1, NULL, 'p' },
         { "plugins-dirs",   1, NULL, 'P' },
         { "directory",      1, NULL, 'C' },
@@ -177,7 +179,7 @@ parse_options(int argc, char *argv[])
     int iOptionIndex = 0;
 #endif
     char cOption;
-    char *options = ":C:f:hp:P:tvx";
+    char *options = ":C:f:n:hp:P:tvx";
 
     while (1) {
 
@@ -220,6 +222,17 @@ parse_options(int argc, char *argv[])
                     fprintf(stderr, "Error: You can only specify one archive ");
                     fprintf(stderr, "file.\n");
                 }
+            }
+                break;
+            case 'n' : {
+                for (i = 0; i < (int)strlen(optarg); i++) {
+                    if (!isdigit(optarg[i])){
+                        bError = 1;
+                        fprintf(stderr, "Plugin select value is not an integer.\n");
+                        break;
+                    }
+                }
+                iOptionSelectPlugin = atoi(optarg);
             }
                 break;
             case 'p' :
@@ -286,6 +299,7 @@ initialize_cli_context()
     context->iQueriedFilenamesCount = iOptionQueriedFilenamesCount;
     context->szPluginsFilenames = szOptionPluginsFilenames;
     context->szPluginsDirs = szOptionPluginsDirs;
+    context->iSelectedPlugin = iOptionSelectPlugin;
     context->eAction = eAction;
     context->bVerbose = bOptionVerbose;
 }

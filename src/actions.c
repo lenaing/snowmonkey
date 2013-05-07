@@ -33,7 +33,7 @@
  */
 #include "actions.h"
 
-/* iconv_t pIconv = NULL; */
+iconv_t pIconv = NULL;
 extern char *OnsenEncodings[];
 extern Context_t *context;
 
@@ -56,17 +56,31 @@ process_file(SnowmonkeyActionMode mode)
     iQueriesCount = context->iQueriedFilenamesCount;
     a_szQueriedFilenames = context->a_szQueriedFilenames;
 
+    
+    /* Limits to Onsen Archive plugins */
+    if (context->pPlugins[context->iSelectedPlugin]->type == ONSEN_PLUGIN_ARCHIVE) {
+
+        if (0 == context->pInputFile->isMmaped) {
+            lOffset = 0;
+            pFile = (void *)(&(context->pInputFile->fd));
+        } else {
+            lOffset = context->pInputFile->fileSize;
+            pFile = context->pInputFile->data;
+        }
+
+        if (!context->pPlugins[context->iSelectedPlugin]->isFileSupported(context->pInputFile->isMmaped,
+                                        context->szInputFilename,
+                                        pFile,
+                                        lOffset)) {
+            return;
+        }
+    }
+
+    fprintf(stdout, "|   Using plugin : %s\n", context->pPlugins[context->iSelectedPlugin]->name);
+
     /* Retrieve archive info */
     pInfo = onsen_new_archive_info();
-    instance = context->pPlugins[0]->instance;
-
-    if (0 == context->pInputFile->isMmaped) {
-        lOffset = 0;
-        pFile = (void *)(&(context->pInputFile->fd));
-    } else {
-        lOffset = context->pInputFile->fileSize;
-        pFile = context->pInputFile->data;
-    }
+    instance = context->pPlugins[context->iSelectedPlugin]->instance;
 
     rc = instance->getArchiveInfo(context->pInputFile->isMmaped,
                                     lOffset,
@@ -74,20 +88,23 @@ process_file(SnowmonkeyActionMode mode)
                                     pFile,
                                     pInfo);
     if (0 == rc) {
-        if ((context->bVerbose) || (NULL == pInfo->archiveEntries[0])) {
+        if ((context->bVerbose)/* || (NULL == pInfo->archiveEntries[0])*/) {
             fprintf(stderr, "|   Failed to read archive info.\n");
         }
-        onsen_free_archive_info(pInfo);
+        /* Info may have been freed by plugin */
+        if (pInfo != NULL) {
+            onsen_free_archive_info(pInfo);
+        }
         return;
     }
 
     /* Iconv stuff */
     pEncoding = pInfo->archiveFilenamesEncoding;
     switch(pEncoding) {
-        /*case SHIFT_JIS : {
+        case SHIFT_JIS : {
             pIconv = onsen_iconv_init("UTF-8", OnsenEncodings[pEncoding]);
             break;
-        };*/
+        };
         default : {
         };
     }
@@ -112,11 +129,11 @@ process_file(SnowmonkeyActionMode mode)
         }
 
         switch(pEncoding) {
-            /*case SHIFT_JIS : {
+            case SHIFT_JIS : {
                 szTmp = onsen_shift_jis2utf8(pIconv, pEntry->filename);
                 szTmpFilename = szTmp;
                 break;
-            };*/
+            };
             default : {
                 szTmpFilename = (char *)(pEntry->filename);
             };
@@ -150,8 +167,8 @@ process_file(SnowmonkeyActionMode mode)
         free_print_table();
     }
 
-    /*if (pIconv != NULL) {
+    if (pIconv != NULL) {
         onsen_iconv_cleanup(pIconv);
-    }*/
+    }
     onsen_free_archive_info(pInfo);
 }

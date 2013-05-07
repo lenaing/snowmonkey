@@ -61,6 +61,7 @@ struct _Context_s
     /* Plugins. */
     OnsenPlugin_t **pPlugins;               /* List of loaded plugins.        */
     int iPluginsCount;                      /* Count of loaded plugins.       */
+    int iSelectedPlugin;
     char *szPluginsDirs;                    /* List of dirs where to look for
                                              * plugins, separated by colons.  */
     char *szPluginsFilenames;               /* List of plugins filenames to

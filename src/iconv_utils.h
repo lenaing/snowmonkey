@@ -1,13 +1,15 @@
 /*
  * Copyright 2011, 2012 - Etienne 'lenaing' GIRONDEL <lenaing@gmail.com>
  * 
- * snowmonkey :
- * ------------
- * This software is a libonsen CLI interface.
+ * libonsen
+ * --------
+ * This library is a collection of resources whose purpose is to offer an easy
+ * to use framework to open and manipulate (mostly games) data archives through
+ * an extensive plugins usage.
  * 
- * This software is governed by the CeCILL license under French law and
+ * This software is governed by the CeCILL-C license under French law and
  * abiding by the rules of distribution of free software.  You can  use, 
- * modify and/ or redistribute the software under the terms of the CeCILL
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
  * license as circulated by CEA, CNRS and INRIA at the following URL
  * "http://www.cecill.info". 
  * 
@@ -29,21 +31,20 @@
  * same conditions as regards security. 
  * 
  * The fact that you are presently reading this means that you have had
- * knowledge of the CeCILL license and that you accept its terms.
+ * knowledge of the CeCILL-C license and that you accept its terms.
  */
-#ifndef __SNOWMONKEY_CLI_H
-#define __SNOWMONKEY_CLI_H
+#ifndef __ONSEN_ICONV_H
+#define __ONSEN_ICONV_H
 
-#include "config.h"
+#include <assert.h>
+#include <errno.h>
+#include <iconv.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "globals.h"
-#include "context.h"
-#include <unistd.h>
-#include <ctype.h>
-void version();
-void help();
-void usage();
-void parse_options(int, char **);
+iconv_t onsen_iconv_init(const char *, const char *);
+int onsen_iconv_cleanup(iconv_t);
 
-void initialize_cli_context();
-void end_cli_context();
-#endif /* __SNOWMONKEY_CLI_H */
+#endif /* __ONSEN_ICONV_H */
