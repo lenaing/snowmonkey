@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, 2012 - Etienne 'lenaing' GIRONDEL <lenaing@gmail.com>
+ * Copyright 2011-2013 - Etienne 'lenaing' GIRONDEL <lenaing@gmail.com>
  * 
  * snowmonkey :
  * ------------
@@ -102,7 +102,7 @@ process_file(SnowmonkeyActionMode mode)
     pEncoding = pInfo->archiveFilenamesEncoding;
     switch(pEncoding) {
         case SHIFT_JIS : {
-            pIconv = onsen_iconv_init("UTF-8", OnsenEncodings[pEncoding]);
+            pIconv = iconv_init("UTF-8", OnsenEncodings[pEncoding]);
             break;
         };
         default : {
@@ -172,7 +172,7 @@ process_file(SnowmonkeyActionMode mode)
     }
 
     if (pIconv != NULL) {
-        onsen_iconv_cleanup(pIconv);
+        iconv_cleanup(pIconv);
     }
     onsen_free_archive_info(pInfo);
 }
