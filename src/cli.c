@@ -110,11 +110,13 @@ Examples:\n\
 ";
     static char const helpOptions2[] = "\
  Plugins selection:\n\n\
+  -n, --plugin               Select plugin ID.\n\
   -p, --plugins              Load plugins only if they match specified\n\
                              filenames.\n\
   -P, --plugins-dir          Search plugins only in specified directories.\n\n\
  Informative output:\n\n\
-  -v, --verbose              Verbosely list files processed.\n\n\
+  -v, --verbose              Verbosely list files processed.\n\n";
+    static char const helpOptions3[] = "\
  Other options:\n\n\
   -h, -?, --help             Give this help list.\n\
           --usage            Give a short usage message.\n\
@@ -129,6 +131,7 @@ Examples:\n\
  Local file selection:\n\n\
   -C                         Output to given directory.\n\n\
  Plugins selection:\n\n\
+  -n                         Select plugin ID.\n\
   -p                         Load plugins only if they match specified\n\
                              filenames.\n\
   -P                         Search plugins only in specified directories.\n\n\
@@ -144,6 +147,7 @@ Examples:\n\
     fprintf(stderr, helpOptions);
 #ifdef HAS_LONG_OPT
     fprintf(stderr, helpOptions2);
+    fprintf(stderr, helpOptions3);
 #endif
     fprintf(stderr, helpEnd);
 }
