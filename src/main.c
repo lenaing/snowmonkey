@@ -49,7 +49,7 @@ void start()
     setbuf(stdout, NULL);
     setbuf(stderr, NULL);
 
-    if (context->bVerbose) {
+    if (context->verbose) {
         printf("            @(⌒⌒ )@            \n\n");
         printf("       Snow Monkey v%d.%d%s      \n",
                         SM_VERSION_MAJOR,
@@ -62,7 +62,7 @@ void start()
 
 void stop()
 {
-    if (context->bVerbose) {
+    if (context->verbose) {
         printf("---------------------------------\n");
         printf(" Snow monkey ended successfully! \n");
         printf("            @(⌒_⌒)@              \n");
@@ -73,31 +73,31 @@ void run()
 {
     int nbPlugins = 0;
     comply_to_freedesktop_specs();
-    load_plugins(context->szPluginsFilenames, context->szPluginsDirs);
+    load_plugins(context->pluginsFilenames, context->pluginsDirs);
 
-    if (context->bVerbose) {
-        printf("|   Successfully loaded %d plugins.\n", context->iPluginsCount);
+    if (context->verbose) {
+        printf("|   Successfully loaded %d plugins.\n", context->pluginsCount);
     }
 
-    if (0 == context->iPluginsCount) {
+    if (0 == context->pluginsCount) {
         printf("|   No plugin loaded, can't open a file without a plugin...\n");
     } else {
-        if (0 == file_exists(context->szInputFilename)) {
+        if (0 == file_exists(context->inputFilename)) {
             load_file();
             nbPlugins = check_fileformat_supported_by_plugins();
             if (nbPlugins > 0) {
                 if (nbPlugins > 1) {
                     print_available_plugins();
                 }
-                process_file(context->eAction);
+                process_file(context->action);
             }
             unload_file();
         } else {
-            if (NULL == context->szInputFilename) {
+            if (NULL == context->inputFilename) {
                 fprintf(stderr, "|   No input file specified!\n");
             } else {
                 fprintf(stderr, "|   Unable to open file ");
-                fprintf(stderr, "'%s'!\n", context->szInputFilename);
+                fprintf(stderr, "'%s'!\n", context->inputFilename);
             }
         }
     }

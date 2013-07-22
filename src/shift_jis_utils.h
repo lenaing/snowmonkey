@@ -31,8 +31,8 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#ifndef __ONSEN_SHIFT_JIS_UTILS_H
-#define __ONSEN_SHIFT_JIS_UTILS_H
+#ifndef __SNOWMONKEY_SHIFT_JIS_UTILS_H
+#define __SNOWMONKEY_SHIFT_JIS_UTILS_H
 
 #include "iconv_utils.h"
 #include <stdint.h>
@@ -40,9 +40,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-int onsen_is_shift_jis_first_byte(unsigned char);
-int onsen_are_shift_jis_bytes(unsigned char, unsigned char);
-int onsen_is_shift_jis(const char *);
+int   onsen_is_shift_jis_first_byte(unsigned char);
+int   onsen_are_shift_jis_bytes(unsigned char, unsigned char);
+int   onsen_is_shift_jis(const char *);
 char *onsen_shift_jis2utf8(iconv_t, char *);
 
-#endif /* __ONSEN_SHIFT_JIS_UTILS_H */
+#endif /* __SNOWMONKEY_SHIFT_JIS_UTILS_H */

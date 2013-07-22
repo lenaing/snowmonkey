@@ -41,7 +41,7 @@
 #include <libonsen/archive_plugin.h>
 #include <libonsen/string_utils.h>
 
-int numlen(int);
+int  numlen(int);
 void repeat_print_char(int, char);
 
 void init_print_table(OnsenArchiveInfo_t *);

@@ -35,23 +35,23 @@
 
 extern Context_t *context;
 
-int bOptionPrintUsage;
-int bOptionPrintVersion;
-int bOptionVerbose;
-int iOptionQueriedFilenamesCount;
-int iOptionSelectPlugin = 0;
-SnowmonkeyActionMode eAction;
+int optionPrintUsage;
+int optionPrintVersion;
+int optionVerbose;
+int optionQueriedFilenamesCount;
+int optionSelectPlugin = 0;
+SnowmonkeyActionMode action;
 
-char *szOptionInputFilename;
-char *szOptionOutputDir;
-char *szOptionPluginsFilenames;
-char *szOptionPluginsDirs;
-char **a_szOptionQueriedFilenames;
+char *optionInputFilename;
+char *optionOutputDir;
+char *optionPluginsFilenames;
+char *optionPluginsDirs;
+char **optionQueriedFilenames;
 
 #ifdef HAS_LONG_OPT
     #include <getopt.h>
 
-    static struct option sLongOptions[] = {
+    static struct option longOptions[] = {
         { "extract",        0, NULL, 'x' },
         { "get",            0, NULL, 'x' },
         { "file",           1, NULL, 'f' },
@@ -61,9 +61,9 @@ char **a_szOptionQueriedFilenames;
         { "directory",      1, NULL, 'C' },
         { "help",           0, NULL, 'h' },
         { "list",           0, NULL, 't' },
-        { "usage",          0, &bOptionPrintUsage, 1 },
+        { "usage",          0, &optionPrintUsage, 1 },
         { "verbose",        0, NULL, 'v' },
-        { "version",        0, &bOptionPrintVersion, 1 },
+        { "version",        0, &optionPrintVersion, 1 },
         { NULL,             0, NULL, 0 }
     };
 #endif
@@ -157,13 +157,13 @@ usage()
 {
     static char const optionsUsage[] = "\
 Usage: snowmonkey [-txhv?] [-f ARCHIVE] [FILES]\n\
-            [-C DIR]\n";
+            [-C DIR] [-n ID]\n";
 #ifdef HAS_LONG_OPT
     static char const longOptionsUsage[] = "\
             [--file]\n\
             [--verbose]\n\
             [--list] [--extract] [--get]\n\
-            [--plugins] [--plugins-dir]\n\
+            [--plugin] [--plugins] [--plugins-dir]\n\
             [--help] [--usage] [--version]\n";
 #endif
     fprintf(stderr, optionsUsage);
@@ -177,52 +177,52 @@ void
 parse_options(int argc, char *argv[])
 {
     int i;
-    int iMainOperationModeArgs = 0;
-    int bError = 0;
+    int mainOperationModeArgs = 0;
+    int error = 0;
 #ifdef HAS_LONG_OPT
-    int iOptionIndex = 0;
+    int optionIndex = 0;
 #endif
-    char cOption;
+    char option;
     char *options = ":C:f:n:hp:P:tvx";
 
     while (1) {
 
 #ifdef HAS_LONG_OPT
-        cOption = getopt_long(argc, argv, options, sLongOptions, &iOptionIndex);
+        option = getopt_long(argc, argv, options, longOptions, &optionIndex);
 #else
-        cOption = getopt(argc, argv, options);
+        option = getopt(argc, argv, options);
 #endif
 
-        if (cOption == -1) {
+        if (option == -1) {
             break;
         }
 
-        if (1 == bOptionPrintUsage) {
+        if (1 == optionPrintUsage) {
             usage();
             exit(EXIT_SUCCESS);
         }
 
-        if (1 == bOptionPrintVersion) {
+        if (1 == optionPrintVersion) {
             version();
             exit(EXIT_SUCCESS);
         }
 
-        switch (cOption) {
+        switch (option) {
             case 'C' : {
-                if (NULL == szOptionOutputDir) {
-                    szOptionOutputDir = optarg;
+                if (NULL == optionOutputDir) {
+                    optionOutputDir = optarg;
                 } else {
-                    bError = 1;
+                    error = 1;
                     fprintf(stderr, "Error: You can only specify one output ");
                     fprintf(stderr, "directory.\n");
                 }
             }
                 break;
             case 'f' : {
-                if (NULL == szOptionInputFilename) {
-                    szOptionInputFilename = optarg;
+                if (NULL == optionInputFilename) {
+                    optionInputFilename = optarg;
                 } else {
-                    bError = 1;
+                    error = 1;
                     fprintf(stderr, "Error: You can only specify one archive ");
                     fprintf(stderr, "file.\n");
                 }
@@ -230,32 +230,33 @@ parse_options(int argc, char *argv[])
                 break;
             case 'n' : {
                 for (i = 0; i < (int)strlen(optarg); i++) {
-                    if (!isdigit(optarg[i])){
-                        bError = 1;
-                        fprintf(stderr, "Plugin select value is not an integer.\n");
+                    if (!isdigit(optarg[i])) {
+                        error = 1;
+                        fprintf(stderr, "Plugin select value is not an ");
+                        fprintf(stderr, "integer.\n");
                         break;
                     }
                 }
-                iOptionSelectPlugin = atoi(optarg);
+                optionSelectPlugin = atoi(optarg);
             }
                 break;
             case 'p' :
-                szOptionPluginsFilenames = optarg;
+                optionPluginsFilenames = optarg;
                 break;
             case 'P' : 
-                szOptionPluginsDirs = optarg;
+                optionPluginsDirs = optarg;
                 break;
             case 't' : {
-                eAction = SNOWMONKEY_LIST;
-                iMainOperationModeArgs++;
+                action = SNOWMONKEY_LIST;
+                mainOperationModeArgs++;
             }
                 break;
             case 'v' :
-                bOptionVerbose = 1;
+                optionVerbose = 1;
                 break;
             case 'x' : {
-                eAction = SNOWMONKEY_EXTRACT;
-                iMainOperationModeArgs++;
+                action = SNOWMONKEY_EXTRACT;
+                mainOperationModeArgs++;
             }
                 break;
             case '?' :
@@ -263,7 +264,7 @@ parse_options(int argc, char *argv[])
                 help();
                 exit(EXIT_SUCCESS);
             case ':' :
-                bError = 1;
+                error = 1;
                 fprintf(stderr, "Error: Missing arguments.\n");
             default :
                 break;
@@ -271,22 +272,22 @@ parse_options(int argc, char *argv[])
 
     }
 
-    if (1 != iMainOperationModeArgs) {
-        bError = 1;
+    if (1 != mainOperationModeArgs) {
+        error = 1;
         fprintf(stderr, "You may not specify more than one `-tx' ");
         fprintf(stderr, "option.\n");
     }
 
     if (optind != argc) {
-        iOptionQueriedFilenamesCount = (argc - optind);
-        a_szOptionQueriedFilenames = calloc(iOptionQueriedFilenamesCount,
-                                                sizeof(char *));
-        for (i = 0; i < iOptionQueriedFilenamesCount; i++) {
-            a_szOptionQueriedFilenames[i] = argv[optind++];
+        optionQueriedFilenamesCount = (argc - optind);
+        optionQueriedFilenames = calloc(optionQueriedFilenamesCount,
+                                            sizeof(char *));
+        for (i = 0; i < optionQueriedFilenamesCount; i++) {
+            optionQueriedFilenames[i] = argv[optind++];
         }
     }
 
-    if (1 == bError) {
+    if (1 == error) {
         usage();
         exit(EXIT_FAILURE);
     }
@@ -297,15 +298,15 @@ void
 initialize_cli_context()
 {
     context = new_context();
-    context->szInputFilename = szOptionInputFilename;
-    context->szOutputDir = szOptionOutputDir; /* TODO Check output dir */
-    context->a_szQueriedFilenames = a_szOptionQueriedFilenames;
-    context->iQueriedFilenamesCount = iOptionQueriedFilenamesCount;
-    context->szPluginsFilenames = szOptionPluginsFilenames;
-    context->szPluginsDirs = szOptionPluginsDirs;
-    context->iSelectedPlugin = iOptionSelectPlugin;
-    context->eAction = eAction;
-    context->bVerbose = bOptionVerbose;
+    context->inputFilename = optionInputFilename;
+    context->outputDir = optionOutputDir; /* TODO Check output dir */
+    context->queriedFilenames = optionQueriedFilenames;
+    context->queriedFilenamesCount = optionQueriedFilenamesCount;
+    context->pluginsFilenames = optionPluginsFilenames;
+    context->pluginsDirs = optionPluginsDirs;
+    context->selectedPlugin = optionSelectPlugin;
+    context->action = action;
+    context->verbose = optionVerbose;
 }
 
 void

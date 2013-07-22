@@ -36,33 +36,33 @@
 Context_t *
 new_context()
 {
-    Context_t *pContext;
-    pContext = malloc(sizeof(Context_t));
+    Context_t *context;
+    context = malloc(sizeof(Context_t));
 
-    pContext->szInputFilename = NULL;
-    pContext->szOutputDir = NULL;
-    pContext->a_szQueriedFilenames = NULL;
-    pContext->iQueriedFilenamesCount = 0;
+    context->inputFilename = NULL;
+    context->outputDir = NULL;
+    context->queriedFilenames = NULL;
+    context->queriedFilenamesCount = 0;
 
-    pContext->pPlugins = NULL;
-    pContext->iPluginsCount = 0;
-    pContext->szPluginsDirs = NULL;
-    pContext->szPluginsFilenames = NULL;
+    context->plugins = NULL;
+    context->pluginsCount = 0;
+    context->pluginsDirs = NULL;
+    context->pluginsFilenames = NULL;
 
-    pContext->eAction = SNOWMONKEY_LIST;
-    pContext->bVerbose = 0;
+    context->action = SNOWMONKEY_LIST;
+    context->verbose = 0;
 
-    return pContext;
+    return context;
 }
 
 void
-free_context(Context_t *pContext)
+free_context(Context_t *context)
 {
-    if (NULL != pContext) {
-        if (NULL != pContext->a_szQueriedFilenames) {
-            free(pContext->a_szQueriedFilenames);
+    if (NULL != context) {
+        if (NULL != context->queriedFilenames) {
+            free(context->queriedFilenames);
         }
 
-        free(pContext);
+        free(context);
     }
 }

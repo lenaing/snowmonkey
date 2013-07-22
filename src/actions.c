@@ -40,69 +40,70 @@ extern Context_t *context;
 void
 process_file(SnowmonkeyActionMode mode)
 {
-    OnsenArchivePlugin_t *instance = NULL;
-    OnsenArchiveInfo_t *pInfo = NULL;
-    OnsenArchiveEntry_t *pEntry = NULL;
-    enum OnsenEncoding pEncoding = ASCII;
     int i, j;
     int rc = 0;
-    int iQueriesCount = 0;
-    long lOffset = 0;
-    void *pFile;
-    char *szTmp = NULL;
-    char *szTmpFilename = NULL;
-    char **a_szQueriedFilenames = NULL;
+    int queriesCount = 0;
+    long offset = 0;
+    void *file;
+    char *tmp = NULL;
+    char *tmpFilename = NULL;
+    char **queriedFilenames = NULL;
+    enum OnsenEncoding encoding = ASCII;
+    OnsenArchivePlugin_t *instance = NULL;
+    OnsenArchiveInfo_t *info = NULL;
+    OnsenArchiveEntry_t *entry = NULL;
+    OnsenPlugin_t *plugin = NULL;
 
-    iQueriesCount = context->iQueriedFilenamesCount;
-    a_szQueriedFilenames = context->a_szQueriedFilenames;
+    queriesCount        = context->queriedFilenamesCount;
+    queriedFilenames    = context->queriedFilenames;
+    plugin              = context->plugins[context->selectedPlugin];
 
-    
     /* Limits to Onsen Archive plugins */
-    if (context->pPlugins[context->iSelectedPlugin]->type == ONSEN_PLUGIN_ARCHIVE) {
+    if (plugin->type == ONSEN_PLUGIN_ARCHIVE) {
 
-        if (0 == context->pInputFile->isMmaped) {
-            lOffset = 0;
-            pFile = (void *)(&(context->pInputFile->fd));
+        if (0 == context->inputFile->isMmaped) {
+            file = (void *)(&(context->inputFile->fd));
+            offset = 0;
         } else {
-            lOffset = context->pInputFile->fileSize;
-            pFile = context->pInputFile->data;
+            file = context->inputFile->data;
+            offset = context->inputFile->fileSize;
         }
 
-        if (!context->pPlugins[context->iSelectedPlugin]->isFileSupported(context->pInputFile->isMmaped,
-                                        context->szInputFilename,
-                                        pFile,
-                                        lOffset)) {
+        if (!plugin->isFileSupported(context->inputFile->isMmaped,
+                                      context->inputFilename,
+                                      file,
+                                      offset)) {
             return;
         }
     }
 
-    fprintf(stdout, "|   Using plugin : %s\n", context->pPlugins[context->iSelectedPlugin]->name);
+    fprintf(stdout, "|   Using plugin : %s\n", plugin->name);
 
     /* Retrieve archive info */
-    pInfo = onsen_new_archive_info();
-    instance = context->pPlugins[context->iSelectedPlugin]->instance;
+    info = onsen_new_archive_info();
+    instance = plugin->instance;
 
-    rc = instance->getArchiveInfo(context->pInputFile->isMmaped,
-                                    lOffset,
-                                    context->szInputFilename,
-                                    pFile,
-                                    pInfo);
+    rc = instance->getArchiveInfo(context->inputFile->isMmaped,
+                                   offset,
+                                   context->inputFilename,
+                                   file,
+                                   info);
     if (0 == rc) {
-        if ((context->bVerbose)/* || (NULL == pInfo->archiveEntries[0])*/) {
+        if ((context->verbose)/* || (NULL == pInfo->archiveEntries[0])*/) {
             fprintf(stderr, "|   Failed to read archive info.\n");
         }
         /* Info may have been freed by plugin */
-        if (pInfo != NULL) {
-            onsen_free_archive_info(pInfo);
+        if (info != NULL) {
+            onsen_free_archive_info(info);
         }
         return;
     }
 
     /* Iconv stuff */
-    pEncoding = pInfo->archiveFilenamesEncoding;
-    switch(pEncoding) {
+    encoding = info->archiveFilenamesEncoding;
+    switch(encoding) {
         case SHIFT_JIS : {
-            pIconv = iconv_init("UTF-8", OnsenEncodings[pEncoding]);
+            pIconv = iconv_init("UTF-8", OnsenEncodings[encoding]);
             break;
         };
         default : {
@@ -111,62 +112,62 @@ process_file(SnowmonkeyActionMode mode)
 
     if (mode == SNOWMONKEY_LIST) {
         /* Output results */
-        print_info(pInfo);
-        if (context->bVerbose) {
-            init_print_table(pInfo);
-            print_table_header(pInfo);
+        print_info(info);
+        if (context->verbose) {
+            init_print_table(info);
+            print_table_header(info);
         }
     }
 
-    for (i = 1; i <= pInfo->archiveEntriesCount; i++) {
-        if (NULL == pInfo->archiveEntries) {
+    for (i = 1; i <= info->archiveEntriesCount; i++) {
+        if (NULL == info->archiveEntries) {
             /* No archive entry defined. Stop here.*/
             break;
         }
 
-        pEntry = pInfo->archiveEntries[i];
-        if (NULL == pEntry) {
+        entry = info->archiveEntries[i];
+        if (NULL == entry) {
             /* Invalid entry, check next. */
             continue;
         }
 
-        switch(pEncoding) {
+        switch(encoding) {
             case SHIFT_JIS : {
-                szTmp = onsen_shift_jis2utf8(pIconv, pEntry->filename);
-                szTmpFilename = szTmp;
+                tmp = onsen_shift_jis2utf8(pIconv, entry->filename);
+                tmpFilename = tmp;
                 break;
             };
             default : {
-                szTmpFilename = (char *)(pEntry->filename);
+                tmpFilename = (char *)(entry->filename);
             };
         }
 
-        if (0 != iQueriesCount) {
-            for (j = 0; j < iQueriesCount; j++) {
-                if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
+        if (0 != queriesCount) {
+            for (j = 0; j < queriesCount; j++) {
+                if (0 == strcmp(tmpFilename, queriedFilenames[j])) {
                     if (mode == SNOWMONKEY_EXTRACT) {
-                        extract_entry(instance, pEntry, szTmpFilename);
+                        extract_entry(instance, entry, tmpFilename);
                     } else {
-                        print_entry(pEntry, szTmpFilename, i);
+                        print_entry(entry, tmpFilename, i);
                     }
                     break;
                 }
             }
         } else {
             if (mode == SNOWMONKEY_EXTRACT) {
-                extract_entry(instance, pEntry, szTmpFilename);
+                extract_entry(instance, entry, tmpFilename);
             } else {
-                print_entry(pEntry, szTmpFilename, i);
+                print_entry(entry, tmpFilename, i);
             }
         }
 
-        if (NULL != szTmp) {
-            free(szTmp);
+        if (NULL != tmp) {
+            free(tmp);
         }
     }
 
     if (mode == SNOWMONKEY_LIST) {
-        if (context->bVerbose) {
+        if (context->verbose) {
             free_print_table();
         }
     }
@@ -174,5 +175,5 @@ process_file(SnowmonkeyActionMode mode)
     if (pIconv != NULL) {
         iconv_cleanup(pIconv);
     }
-    onsen_free_archive_info(pInfo);
+    onsen_free_archive_info(info);
 }

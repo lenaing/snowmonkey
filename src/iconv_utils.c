@@ -34,21 +34,21 @@
 #include "iconv_utils.h"
 
 iconv_t
-iconv_init(const char * szOutCharset, const char * szInCharset)
+iconv_init(const char * outCharset, const char * inCharset)
 {
     iconv_t pIconv;
 
-    assert(NULL != szOutCharset);
-    assert(NULL != szInCharset);
+    assert(NULL != outCharset);
+    assert(NULL != inCharset);
 
-    pIconv = iconv_open(szOutCharset, szInCharset);
+    pIconv = iconv_open(outCharset, inCharset);
     if (-1 == (intptr_t)pIconv) {
         perror("iconv");
         if (EINVAL == errno) {
             fprintf(stderr, "Conversion from '%s' to '%s' is not supported.",
-                  szOutCharset, szInCharset);
+                  outCharset, inCharset);
         } else {
-            fprintf(stderr, "Iconv initialization failure: %s.", strerror(errno));
+            fprintf(stderr, "Iconv init failure: %s.", strerror(errno));
         }
         return NULL;
     }

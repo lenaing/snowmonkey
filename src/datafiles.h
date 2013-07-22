@@ -40,8 +40,8 @@
 
 #include <libonsen/string_utils.h>
 
-char *get_data_dirs(char *);
+char * get_data_dirs(char *);
 char **find_data_files(char *, char *);
-int file_exists(char *);
+int    file_exists(char *);
 
 #endif /* __SNOWMONKEY_DATAFILES_H */

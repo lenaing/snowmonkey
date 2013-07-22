@@ -39,6 +39,7 @@
 #include "context.h"
 #include <unistd.h>
 #include <ctype.h>
+
 void version();
 void help();
 void usage();
@@ -46,4 +47,5 @@ void parse_options(int, char **);
 
 void initialize_cli_context();
 void end_cli_context();
+
 #endif /* __SNOWMONKEY_CLI_H */

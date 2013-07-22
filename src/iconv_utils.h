@@ -42,7 +42,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "globals.h"
+
 iconv_t iconv_init(const char *, const char *);
-int iconv_cleanup(iconv_t);
+int     iconv_cleanup(iconv_t);
 
 #endif /* __SNOWMONKEY_ICONV_H */

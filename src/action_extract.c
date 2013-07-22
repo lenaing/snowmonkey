@@ -36,70 +36,69 @@
 extern Context_t *context;
 
 void
-extract_entry(OnsenArchivePlugin_t *pInstance, OnsenArchiveEntry_t *pEntry,
-                char *szFilename)
+extract_entry(OnsenArchivePlugin_t *instance, OnsenArchiveEntry_t *entry,
+                char *filename)
 {
-    char *szDestFilename = NULL;
-    char *szOutputDir = NULL;
-    void *pSrcFile = NULL;
-    char *szTmpPath = NULL;
-    char *szTmpDir = NULL;
-    int bError = 0;
+    int error = 0;
+    void *srcFile = NULL;
+    char *destFilename = NULL;
+    char *outputDir = NULL;
+    char *tmpPath = NULL;
+    char *tmpDir = NULL;
 
-    if (NULL != context->szOutputDir) {
-        szOutputDir = context->szOutputDir;
+    if (NULL != context->outputDir) {
+        outputDir = context->outputDir;
     } else {
-        szOutputDir = ".";
+        outputDir = ".";
     }
 
-    szDestFilename = onsen_build_filename(szOutputDir, szFilename);
+    destFilename = onsen_build_filename(outputDir, filename);
 
 #if defined(__linux__) || defined(__GNU__)
     /* Correct filenames for an UNIX system. */
-    onsen_str_chr_replace(szDestFilename, '\\', '/');
+    onsen_str_chr_replace(destFilename, '\\', '/');
 #endif
 
-    szTmpPath = onsen_strdup(szDestFilename);
-    szTmpDir = dirname(szTmpPath);
-    if (-1 == (intptr_t)szTmpDir) {
-        perror(szTmpDir);
-        printf("Failed to get output directory of file '%s'.\n",
-                    szDestFilename);
-        bError = 1;
+    tmpPath = onsen_strdup(destFilename);
+    tmpDir = dirname(tmpPath);
+    if (-1 == (intptr_t)tmpDir) {
+        perror(tmpDir);
+        printf("Failed to get output directory of file '%s'.\n", destFilename);
+        error = 1;
     }
 
-    if (0 == bError) {
+    if (0 == error) {
         /* Build directory tree for this file. */
-        if (0 == onsen_mkdir(szTmpDir)) {
+        if (0 == onsen_mkdir(tmpDir)) {
             printf("Failed to create output directory for file '%s'.\n",
-                    szDestFilename);
+                    destFilename);
         } else {
-            if (context->bVerbose) {
+            if (context->verbose) {
                 /* Make some space for progress indicator */
                 printf("       ");
             }
 
-            printf("%s", szFilename);
+            printf("%s", filename);
 
             /* Write file to disk. */
-            if (0 == context->pInputFile->isMmaped) {
-                pSrcFile = (void *)(&(context->pInputFile->fd));
+            if (0 == context->inputFile->isMmaped) {
+                srcFile = (void *)(&(context->inputFile->fd));
             } else {
-                pSrcFile = context->pInputFile->data;
+                srcFile = context->inputFile->data;
             }
 
-            pInstance->writeFile(context->pInputFile->isMmaped,
-                                    pSrcFile,
-                                    pEntry->offset,
+            instance->writeFile(context->inputFile->isMmaped,
+                                    srcFile,
+                                    entry->offset,
                                     0,
-                                    szDestFilename,
-                                    pEntry->compressedSize,
-                                    (context->bVerbose) ? print_progress : NULL,
-                                    pEntry);
+                                    destFilename,
+                                    entry->compressedSize,
+                                    (context->verbose) ? print_progress : NULL,
+                                    entry);
         }
     }
     printf("\n");
 
-    onsen_free(szTmpPath);
-    onsen_free(szDestFilename);
+    onsen_free(tmpPath);
+    onsen_free(destFilename);
 }

@@ -36,16 +36,16 @@ extern Context_t *context;
 extern char *OnsenEncodings[];
 
 int sizeHeaderLen = 12;
-int iCompSizeHeaderLen = 12;
-int iFiletypeFormat = 12;
-int iMediatypeFormat = 12;
-int *a_iAddFieldsHeadersLen = NULL;
-char szSizeHeaderFormat[100];
-char szSizeValueFormat[100];
-char szCompSizeHeaderFormat[100];
-char szCompSizeValueFormat[100];
-char szFiletypeFormat[100];
-char szMediatypeFormat[100];
+int compSizeHeaderLen = 12;
+int filetypeFormatLen = 12;
+int mediatypeFormatLen = 12;
+int *addFieldsHeadersLen = NULL;
+char sizeHeaderFormat[100];
+char sizeValueFormat[100];
+char compSizeHeaderFormat[100];
+char compSizeValueFormat[100];
+char filetypeFormat[100];
+char mediatypeFormat[100];
 
 char **filetypes;
 char **mediatypes;
@@ -55,8 +55,8 @@ extern iconv_t pIconv;
 int
 numlen(int i)
 {
-    char szTmp[SNOWMONKEY_MAX_COLUMN_SIZE];
-    return sprintf(szTmp, "%d", i);
+    char tmp[SNOWMONKEY_MAX_COLUMN_SIZE];
+    return sprintf(tmp, "%d", i);
 }
 
 void
@@ -70,76 +70,77 @@ repeat_print_char(int n, char c)
 }
 
 void
-print_info(OnsenArchiveInfo_t *pInfo)
+print_info(OnsenArchiveInfo_t *info)
 {
-    if (context->bVerbose) {
-        printf("|   Archive filename = %s\n", context->szInputFilename);
-        printf("|   Archive size = %ld bytes\n", pInfo->archiveFileSize);
-        printf("|   Archive entries count = %d\n", pInfo->archiveEntriesCount);
+    if (context->verbose) {
+        printf("|   Archive filename = %s\n", context->inputFilename);
+        printf("|   Archive size = %ld bytes\n", info->archiveFileSize);
+        printf("|   Archive entries count = %d\n", info->archiveEntriesCount);
         printf("|\n");
     }
 }
 
 void
-init_print_table(OnsenArchiveInfo_t *pInfo)
+init_print_table(OnsenArchiveInfo_t *info)
 {
     int i = 0;
     int j = 0;
     int addlFdsCount = 0;
-    int iTmpLen = 0;
-    int iType = 0;
-    long lOffset = 0;
-    int iQueriesCount = 0;
-    char **a_szQueriedFilenames = NULL;
     int found = 0;
-    enum OnsenEncoding pEncoding = ASCII;
-    char *szTmpFilename = NULL;
-    char *filename;
-    char *szTmp;
-    void *pFile;
-    OnsenPlugin_t *pPlugin;
+    int queriesCount = 0;
+    int tmpLen = 0;
+    int type = 0;
+    long offset = 0;
+    char *tmp = NULL;
+    char *filename = NULL;
+    char **queriedFilenames = NULL;
+    void *file;
+    enum OnsenEncoding encoding = ASCII;
+    OnsenPlugin_t *plugin;
+    OnsenArchiveEntry_t *entry;
 
-    iQueriesCount = context->iQueriedFilenamesCount;
-    a_szQueriedFilenames = context->a_szQueriedFilenames;
+    queriesCount = context->queriedFilenamesCount;
+    queriedFilenames = context->queriedFilenames;
 
-    if (NULL == pInfo->archiveEntries) {
+    if (NULL == info->archiveEntries) {
         /* Invalid archive infos */
         return;
     }
 
-    addlFdsCount = pInfo->archiveEntries[0]->addlFdsCount;
+    addlFdsCount = info->archiveEntries[0]->addlFdsCount;
     if (0 != addlFdsCount) {
-        a_iAddFieldsHeadersLen = calloc(addlFdsCount, sizeof(int));
+        addFieldsHeadersLen = calloc(addlFdsCount, sizeof(int));
     }
 
-    filetypes = calloc(pInfo->archiveEntriesCount + 1 , sizeof(char *));
-    mediatypes = calloc(pInfo->archiveEntriesCount + 1, sizeof(char *));
-    pEncoding = pInfo->archiveFilenamesEncoding;
-    for (i = 1; i <= pInfo->archiveEntriesCount; i++) {
+    filetypes = calloc(info->archiveEntriesCount + 1 , sizeof(char *));
+    mediatypes = calloc(info->archiveEntriesCount + 1, sizeof(char *));
+    encoding = info->archiveFilenamesEncoding;
+    for (i = 1; i <= info->archiveEntriesCount; i++) {
 
+        entry = info->archiveEntries[i];
+        filename = entry->filename;
         filetypes[i] = NULL;
         mediatypes[i] = NULL;
 
-        if (0 != iQueriesCount) {
-
-            switch(pEncoding) {
+        if (0 != queriesCount) {
+            switch(encoding) {
                 case SHIFT_JIS : {
-                    szTmpFilename = onsen_shift_jis2utf8(pIconv, pInfo->archiveEntries[i]->filename);
+                    tmp = onsen_shift_jis2utf8(pIconv, filename);
                     break;
                 };
                 default : {
-                    szTmpFilename = (char *)(pInfo->archiveEntries[i]->filename);
+                    tmp = (char *)(filename);
                 };
             }
 
             found = 1;
-            for (j = 0; j < iQueriesCount; j++) {
-                if (0 == strcmp(szTmpFilename, a_szQueriedFilenames[j])) {
+            for (j = 0; j < queriesCount; j++) {
+                if (0 == strcmp(tmp, queriedFilenames[j])) {
                     found = 0;
                 }
             }
 
-            free(szTmpFilename);
+            free(tmp);
         }
 
 
@@ -148,115 +149,110 @@ init_print_table(OnsenArchiveInfo_t *pInfo)
             continue;
         }
 
-        iTmpLen = numlen(pInfo->archiveEntries[i]->size);
-        if (iTmpLen > sizeHeaderLen) {
-            sizeHeaderLen = iTmpLen;
+        tmpLen = numlen(entry->size);
+        if (tmpLen > sizeHeaderLen) {
+            sizeHeaderLen = tmpLen;
         }
 
-        iTmpLen = numlen(pInfo->archiveEntries[i]->compressedSize);
-        if (iTmpLen > iCompSizeHeaderLen) {
-            iCompSizeHeaderLen = iTmpLen;
+        tmpLen = numlen(entry->compressedSize);
+        if (tmpLen > compSizeHeaderLen) {
+            compSizeHeaderLen = tmpLen;
         }
 
         for (j = 0; j < addlFdsCount; j++) {
-            iTmpLen = strlen(pInfo->archiveEntries[i]->addlFds[j]);
-            if (iTmpLen > a_iAddFieldsHeadersLen[j]) {
-                a_iAddFieldsHeadersLen[j] = iTmpLen + 1;
+            tmpLen = strlen(entry->addlFds[j]);
+            if (tmpLen > addFieldsHeadersLen[j]) {
+                addFieldsHeadersLen[j] = tmpLen + 1;
             }
         }
 
-        for (j = 0; j < context->iPluginsCount; j++) {
-            pPlugin = context->pPlugins[j];
+        for (j = 0; j < context->pluginsCount; j++) {
+            plugin = context->plugins[j];
 
-            if (0 == context->pInputFile->isMmaped) {
-                pFile = (void *)(&(context->pInputFile->fd));
-                lOffset = pInfo->archiveEntries[i]->offset;
+            if (0 == context->inputFile->isMmaped) {
+                file = (void *)(&(context->inputFile->fd));
+                offset = entry->offset;
             } else {
-                pFile = ((unsigned char *)(context->pInputFile->data)) + pInfo->archiveEntries[i]->offset;
-                lOffset = pInfo->archiveEntries[i]->size;
+                file = ((unsigned char *)(context->inputFile->data)) +
+                                               entry->offset;
+                offset = entry->size;
             }
 
-            filename = pInfo->archiveEntries[i]->filename;
-
-            iType = pPlugin->isFileSupported(context->pInputFile->isMmaped,
+            type = plugin->isFileSupported(context->inputFile->isMmaped,
                                                 filename,
-                                                pFile,
-                                                lOffset);
-            if (iType > 3) {
-                szTmp = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
-                pPlugin->getPluginInfo(iType, szTmp,
-                                        SNOWMONKEY_MAX_COLUMN_SIZE);
-                filetypes[i] = onsen_strdup(szTmp);
-                iTmpLen = strlen(szTmp);
-                if (iTmpLen > iFiletypeFormat) {
-                    iFiletypeFormat = iTmpLen;
+                                                file,
+                                                offset);
+            if (type > 3) {
+                tmp = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
+                plugin->getPluginInfo(type, tmp, SNOWMONKEY_MAX_COLUMN_SIZE);
+                filetypes[i] = onsen_strdup(tmp);
+                tmpLen = strlen(tmp);
+                if (tmpLen > filetypeFormatLen) {
+                    filetypeFormatLen = tmpLen;
                 }
 
-                pPlugin->getPluginInfo(iType + 2, szTmp,
-                                        SNOWMONKEY_MAX_COLUMN_SIZE);
-                mediatypes[i] = onsen_strdup(szTmp);
-                iTmpLen = strlen(szTmp);
-                if (iTmpLen > iMediatypeFormat) {
-                    iMediatypeFormat = iTmpLen;
+                plugin->getPluginInfo(type +2, tmp, SNOWMONKEY_MAX_COLUMN_SIZE);
+                mediatypes[i] = onsen_strdup(tmp);
+                tmpLen = strlen(tmp);
+                if (tmpLen > mediatypeFormatLen) {
+                    mediatypeFormatLen = tmpLen;
                 }
-                free(szTmp);
+                free(tmp);
             }
         }
     }
 
-    if ((int)strlen(SNOWMONKEY_DEFAULT_FILE_TYPE) > iFiletypeFormat) {
-        iFiletypeFormat = strlen(SNOWMONKEY_DEFAULT_FILE_TYPE);
+    if ((int)strlen(SNOWMONKEY_DEFAULT_FILE_TYPE) > filetypeFormatLen) {
+        filetypeFormatLen = strlen(SNOWMONKEY_DEFAULT_FILE_TYPE);
     }
 
-    if ((int)strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE) > iMediatypeFormat) {
-        iMediatypeFormat = strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
+    if ((int)strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE) > mediatypeFormatLen) {
+        mediatypeFormatLen = strlen(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
     }
 
-
-    sprintf(szSizeHeaderFormat, " %%%ds", sizeHeaderLen);
-    sprintf(szCompSizeHeaderFormat, " %%%ds", iCompSizeHeaderLen);
-    sprintf(szSizeValueFormat, " %%%dd", sizeHeaderLen);
-    sprintf(szCompSizeValueFormat, " %%%dd", iCompSizeHeaderLen);
-    sprintf(szFiletypeFormat, " %%%ds", iFiletypeFormat);
-    sprintf(szMediatypeFormat, " %%%ds", iMediatypeFormat);
+    sprintf(sizeHeaderFormat, " %%%ds", sizeHeaderLen);
+    sprintf(compSizeHeaderFormat, " %%%ds", compSizeHeaderLen);
+    sprintf(sizeValueFormat, " %%%dd", sizeHeaderLen);
+    sprintf(compSizeValueFormat, " %%%dd", compSizeHeaderLen);
+    sprintf(filetypeFormat, " %%%ds", filetypeFormatLen);
+    sprintf(mediatypeFormat, " %%%ds", mediatypeFormatLen);
 }
 
 void
 free_print_table(void)
 {
-    free(a_iAddFieldsHeadersLen);
+    free(addFieldsHeadersLen);
     free(filetypes);
     free(mediatypes);
 }
 
 void
-print_table_header(OnsenArchiveInfo_t *pInfo)
+print_table_header(OnsenArchiveInfo_t *info)
 {
     int i = 0;
-
-    char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
     int addlFdsCount = 0;
+    char tmformat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
 
-    if (NULL == pInfo->archiveEntries) {
+    if (NULL == info->archiveEntries) {
         /* Invalid archive infos */
         return;
     }
 
-    if (context->bVerbose) {
-        addlFdsCount = pInfo->archiveEntries[0]->addlFdsCount;
+    if (context->verbose) {
+        addlFdsCount = info->archiveEntries[0]->addlFdsCount;
 
         /* Headers */
         printf("%12s", "Offset");
-        printf(szSizeHeaderFormat, "Size");
+        printf(sizeHeaderFormat, "Size");
         printf("%12s", "Compressed");
-        printf(szCompSizeHeaderFormat, "Comp. Size");
+        printf(compSizeHeaderFormat, "Comp. Size");
         printf("%12s", "Encrypted");
         for (i = 0; i < addlFdsCount; i++) {
-            sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
-            printf(szTmpFormat, pInfo->archiveEntries[0]->addlFds[i]);
+            sprintf(tmformat, " %%%ds", addFieldsHeadersLen[i]);
+            printf(tmformat, info->archiveEntries[0]->addlFds[i]);
         }
-        printf(szFiletypeFormat, "File type");
-        printf(szMediatypeFormat, "Media type");
+        printf(filetypeFormat, "File type");
+        printf(mediatypeFormat, "Media type");
         printf("%s", "  Name");
         printf("\n");
 
@@ -264,15 +260,15 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
         printf("%12s ", "-----------");
         repeat_print_char(sizeHeaderLen, '-');
         printf("%12s ", "-----------");
-        repeat_print_char(iCompSizeHeaderLen, '-');
+        repeat_print_char(compSizeHeaderLen, '-');
         printf("%12s ", "-----------");
         for (i = 0; i < addlFdsCount; i++) {
-            repeat_print_char(a_iAddFieldsHeadersLen[i], '-');
+            repeat_print_char(addFieldsHeadersLen[i], '-');
         }
         printf(" ");
-        repeat_print_char(iFiletypeFormat, '-');
+        repeat_print_char(filetypeFormatLen, '-');
         printf(" ");
-        repeat_print_char(iMediatypeFormat, '-');
+        repeat_print_char(mediatypeFormatLen, '-');
         printf(" ");
         printf(" %s", "----------------");
         printf("\n");
@@ -280,47 +276,46 @@ print_table_header(OnsenArchiveInfo_t *pInfo)
 }
 
 void
-print_entry(OnsenArchiveEntry_t *pEntry, char *filename, int posInArchive)
+print_entry(OnsenArchiveEntry_t *entry, char *filename, int posInArchive)
 {
     int i;
-    char *szFiletype = NULL;
-    char *szMediatype = NULL;
+    char *filetype = NULL;
+    char *mediatype = NULL;
+    char tmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
 
-    char szTmpFormat[SNOWMONKEY_MAX_FORMAT_STRING_LENGTH];
+    if (context->verbose) {
 
-    if (context->bVerbose) {
-
-        printf("%012X", pEntry->offset);
-        printf(szSizeValueFormat, pEntry->size);
-        printf("%12s", (pEntry->isCompressed) ? "yes" : "no");
-        printf(szCompSizeValueFormat, pEntry->compressedSize);
-        printf("%12s", (pEntry->isEncrypted) ? "yes" : "no");
-        if (0 != pEntry->addlFdsCount) {
-            for (i = 0; i < pEntry->addlFdsCount; i++) {
-                if (NULL != pEntry->addlFds[i]) {
-                    sprintf(szTmpFormat, " %%%ds", a_iAddFieldsHeadersLen[i]);
-                    printf(szTmpFormat, pEntry->addlFds[i]);
+        printf("%012X", entry->offset);
+        printf(sizeValueFormat, entry->size);
+        printf("%12s", (entry->isCompressed) ? "yes" : "no");
+        printf(compSizeValueFormat, entry->compressedSize);
+        printf("%12s", (entry->isEncrypted) ? "yes" : "no");
+        if (0 != entry->addlFdsCount) {
+            for (i = 0; i < entry->addlFdsCount; i++) {
+                if (NULL != entry->addlFds[i]) {
+                    sprintf(tmpFormat, " %%%ds", addFieldsHeadersLen[i]);
+                    printf(tmpFormat, entry->addlFds[i]);
                 }
             }
         }
 
-        szFiletype = filetypes[posInArchive];
-        szMediatype = mediatypes[posInArchive];
+        filetype = filetypes[posInArchive];
+        mediatype = mediatypes[posInArchive];
 
-        if (NULL == szFiletype) {
-            szFiletype = onsen_strdup(SNOWMONKEY_DEFAULT_FILE_TYPE);
+        if (NULL == filetype) {
+            filetype = onsen_strdup(SNOWMONKEY_DEFAULT_FILE_TYPE);
         }
-        if (NULL == szMediatype) {
-            szMediatype = onsen_strdup(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
+        if (NULL == mediatype) {
+            mediatype = onsen_strdup(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
         }
 
-        printf(szFiletypeFormat, szFiletype);
-        printf(szMediatypeFormat, szMediatype);
+        printf(filetypeFormat, filetype);
+        printf(mediatypeFormat, mediatype);
 
         printf("  ");
 
-        free(szFiletype);
-        free(szMediatype);
+        free(filetype);
+        free(mediatype);
     }
 
     printf("%s\n", filename);

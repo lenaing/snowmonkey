@@ -49,33 +49,33 @@ typedef struct _Context_s Context_t;
 struct _Context_s
 {
     /* Archive files. */
-    char *szInputFilename;                  /* Input filename.                */
-    OnsenFile_t *pInputFile;                /* Input file metadata.           */
+    char *inputFilename;                    /* Input filename.                */
+    OnsenFile_t *inputFile;                 /* Input file metadata.           */
 
-    char *szOutputDir;                      /* Output directory.              */
+    char *outputDir;                        /* Output directory.              */
 
     /* Queried files. */
-    char **a_szQueriedFilenames;            /* Queried files.                 */
-    int iQueriedFilenamesCount;             /* Count of queried files.        */
+    char **queriedFilenames;                /* Queried files.                 */
+    int queriedFilenamesCount;              /* Count of queried files.        */
 
     /* Plugins. */
-    OnsenPlugin_t **pPlugins;               /* List of loaded plugins.        */
-    int iPluginsCount;                      /* Count of loaded plugins.       */
-    int iSelectedPlugin;
-    char *szPluginsDirs;                    /* List of dirs where to look for
+    OnsenPlugin_t **plugins;                /* List of loaded plugins.        */
+    int pluginsCount;                       /* Count of loaded plugins.       */
+    int selectedPlugin;                     /* Selected plugin.               */
+    char *pluginsDirs;                      /* List of dirs where to look for
                                              * plugins, separated by colons.  */
-    char *szPluginsFilenames;               /* List of plugins filenames to
+    char *pluginsFilenames;                 /* List of plugins filenames to
                                              * load, without extension and
                                              * separated by commas.           */
 
     /* Actions options. */
-    SnowmonkeyActionMode eAction;           /* Selected main action mode.     */
+    SnowmonkeyActionMode action;            /* Selected main action mode.     */
 
     /* Help options. */
-    int bVerbose;                           /* Verbose argument detected.     */
+    int verbose;                            /* Verbose argument detected.     */
 };
 
 Context_t *new_context(void);
-void free_context(Context_t *);
+void       free_context(Context_t *);
 
 #endif /* __SNOWMONKEY_CONTEXT_H */

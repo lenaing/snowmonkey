@@ -38,16 +38,16 @@ extern Context_t *context;
 void
 load_file()
 {
-    if (NULL != context->szInputFilename) {
-        if (context->bVerbose) {
-            printf("|   Opening file '%s'\n", context->szInputFilename);
+    if (NULL != context->inputFilename) {
+        if (context->verbose) {
+            printf("|   Opening file '%s'\n", context->inputFilename);
         }
 
-        context->pInputFile = onsen_new_disk_file(context->szInputFilename,
+        context->inputFile = onsen_new_disk_file(context->inputFilename,
                                                     ONSEN_READ_ONLY,
                                                     0);
 
-        if (NULL == context->pInputFile) {
+        if (NULL == context->inputFile) {
             /* Failed to open given file.
              * TODO */ 
         }
@@ -57,10 +57,10 @@ load_file()
 void
 unload_file()
 {
-    if (NULL != context->pInputFile) {
-        if (context->bVerbose) {
-            printf("|   Closing file '%s'\n", context->szInputFilename);
+    if (NULL != context->inputFile) {
+        if (context->verbose) {
+            printf("|   Closing file '%s'\n", context->inputFilename);
         }
-        onsen_free_disk_file(context->pInputFile);
+        onsen_free_disk_file(context->inputFile);
     }
 }

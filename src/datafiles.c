@@ -34,112 +34,112 @@
 #include "datafiles.h"
 
 char *
-get_data_dirs(char *szComponent)
+get_data_dirs(char *component)
 {
-    char *pSaved = NULL;
-    char *szDataDirs = NULL;
-    char *szDelimiters = ":";
-    char *szToken = NULL;
-    char *szTmpEnv = NULL;
-    char *szTmpXdg = NULL;
+    char *saved = NULL;
+    char *dataDirs = NULL;
+    char *delimiters = ":";
+    char *token = NULL;
+    char *tmpEnv = NULL;
+    char *tmpXDG = NULL;
 
-    szDataDirs = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
+    dataDirs = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
 
     /* Parse XDG_DATA_HOME first. */
-    szTmpXdg = getenv("XDG_DATA_HOME");
-    if (NULL != szTmpXdg) {
-        strcat(szDataDirs, szTmpXdg);
+    tmpXDG = getenv("XDG_DATA_HOME");
+    if (NULL != tmpXDG) {
+        strcat(dataDirs, tmpXDG);
 
-        if (! onsen_str_is_slashed(szTmpXdg)) {
-            strcat(szDataDirs, "/");
+        if (! onsen_str_is_slashed(tmpXDG)) {
+            strcat(dataDirs, "/");
         }
 
-        strcat(szDataDirs, szComponent);
-        strcat(szDataDirs, "/");
+        strcat(dataDirs, component);
+        strcat(dataDirs, "/");
     }
 
     /* Parse XDG_DATA_DIRS now. */
-    szTmpXdg = getenv("XDG_DATA_DIRS");
-    if (NULL != szTmpXdg) {
+    tmpXDG = getenv("XDG_DATA_DIRS");
+    if (NULL != tmpXDG) {
 
-        szTmpEnv = onsen_strdup(szTmpXdg);
-        if (NULL != szTmpEnv) {
+        tmpEnv = onsen_strdup(tmpXDG);
+        if (NULL != tmpEnv) {
 
-            szToken = strtok_r(szTmpEnv, szDelimiters, &pSaved);
-            while (NULL != szToken) {
-                strcat(szDataDirs, ":");
-                strcat(szDataDirs, szToken);
+            token = strtok_r(tmpEnv, delimiters, &saved);
+            while (NULL != token) {
+                strcat(dataDirs, ":");
+                strcat(dataDirs, token);
 
-                if (! onsen_str_is_slashed(szToken)) {
-                    strcat(szDataDirs, "/");
+                if (! onsen_str_is_slashed(token)) {
+                    strcat(dataDirs, "/");
                 }
-                strcat(szDataDirs, szComponent);
-                strcat(szDataDirs, "/");
+                strcat(dataDirs, component);
+                strcat(dataDirs, "/");
 
-                szToken = strtok_r(NULL, szDelimiters, &pSaved);
+                token = strtok_r(NULL, delimiters, &saved);
             }
 
-            onsen_free(szTmpEnv);
+            onsen_free(tmpEnv);
         }
     }
 
-    return szDataDirs;
+    return dataDirs;
 }
 
 char **
-find_data_files(char *szSearch, char *szDataDirs)
+find_data_files(char *szSearch, char *dataDirs)
 {
     int i;
-    int iCount = 0;
-    wordexp_t sWords;
-    char *pSaved = NULL;
-    char *szCurDir = NULL;
-    char *szDelimiters = ":";
-    char *szFilename = NULL;
-    char *szTmpDir = NULL;
-    char **a_szFilenames = NULL;
+    int count = 0;
+    wordexp_t words;
+    char *saved = NULL;
+    char *curDir = NULL;
+    char *delimiters = ":";
+    char *filename = NULL;
+    char *tmpDir = NULL;
+    char **filenames = NULL;
 
-    a_szFilenames = calloc(SNOWMONKEY_MAX_SEARCH_RESULTS, sizeof(char *));
-    szTmpDir = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
+    filenames = calloc(SNOWMONKEY_MAX_SEARCH_RESULTS, sizeof(char *));
+    tmpDir = calloc(SNOWMONKEY_MAX_STRING_LENGTH, sizeof(char));
 
-    szCurDir = strtok_r(szDataDirs, szDelimiters, &pSaved);
-    strcat(szTmpDir, szCurDir);
-    if (! onsen_str_is_slashed(szCurDir)) {
-        strcat(szTmpDir, "/");
+    curDir = strtok_r(dataDirs, delimiters, &saved);
+    strcat(tmpDir, curDir);
+    if (! onsen_str_is_slashed(curDir)) {
+        strcat(tmpDir, "/");
     }
-    strcat(szTmpDir, szSearch);
+    strcat(tmpDir, szSearch);
 
-    wordexp(szTmpDir, &sWords, WRDE_NOCMD);
-    while (NULL != szCurDir) {
-        szCurDir = strtok_r(NULL, szDelimiters, &pSaved);
-        if (NULL != szCurDir) {
-            szTmpDir[0] = '\0';
-            strcat(szTmpDir, szCurDir);
-            if (! onsen_str_is_slashed(szCurDir)) {
-                strcat(szTmpDir, "/");
+    wordexp(tmpDir, &words, WRDE_NOCMD);
+    while (NULL != curDir) {
+        curDir = strtok_r(NULL, delimiters, &saved);
+        if (NULL != curDir) {
+            tmpDir[0] = '\0';
+            strcat(tmpDir, curDir);
+            if (! onsen_str_is_slashed(curDir)) {
+                strcat(tmpDir, "/");
             }
-            strcat(szTmpDir, szSearch);
-            wordexp(szTmpDir, &sWords, WRDE_APPEND|WRDE_NOCMD);
+            strcat(tmpDir, szSearch);
+            wordexp(tmpDir, &words, WRDE_APPEND | WRDE_NOCMD);
         }
     }
 
-    for (i = 0; i < (int)((&sWords)->we_wordc); i++) {
-        szFilename = ((&sWords)->we_wordv)[i];
-        if (0 == file_exists(szFilename)) {
-            a_szFilenames[iCount++] = onsen_strdup(szFilename);
+    for (i = 0; i < (int)((&words)->we_wordc); i++) {
+        filename = ((&words)->we_wordv)[i];
+        if (0 == file_exists(filename)) {
+            filenames[count++] = onsen_strdup(filename);
         }
     }
-    a_szFilenames[iCount] = NULL;
+    filenames[count] = NULL;
 
-    wordfree(&sWords);
-    free(szTmpDir);
-    return a_szFilenames;
+    wordfree(&words);
+    free(tmpDir);
+    return filenames;
 }
 
 
 int
-file_exists(char *szFilename)
+file_exists(char *filename)
 {
-    struct stat sSt;
-    return (-1 == stat(szFilename, &sSt));
+    struct stat s;
+    return (-1 == stat(filename, &s));
 }

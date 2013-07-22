@@ -34,7 +34,7 @@
 #include "shift_jis_utils.h"
 
 int
-onsen_are_shift_jis_bytes(unsigned char cFrst, unsigned char cScnd)
+onsen_are_shift_jis_bytes(unsigned char first, unsigned char second)
 {
     /* JIS X 0208:1997,
      * 
@@ -44,13 +44,13 @@ onsen_are_shift_jis_bytes(unsigned char cFrst, unsigned char cScnd)
      * 
      * Micro$oft code page.
      */
-    if ((cFrst >= 0x81 && cFrst <= 0x9f) || (cFrst >= 0xe0 && cFrst <= 0xef)) {
-        return (((cScnd >= 0x40) && (cScnd <= 0x7e))
-                || ((cScnd >= 0x80) && (cScnd <= 0xfc)));
+    if ((first >= 0x81 && first <= 0x9f) || (first >= 0xe0 && first <= 0xef)) {
+        return (((second >= 0x40) && (second <= 0x7e))
+                || ((second >= 0x80) && (second <= 0xfc)));
     }
 
     /* JIS X 0201:1997, Half kana (0xa1 to 0xdf) */
-    if ((cFrst >= 0xa1 && cFrst <= 0xdf) || (cScnd >= 0xa1 && cScnd <=0xdf)) {
+    if ((first >= 0xa1 && first <= 0xdf) || (second >= 0xa1 && second <=0xdf)) {
         return 1;
     }
 
@@ -58,57 +58,56 @@ onsen_are_shift_jis_bytes(unsigned char cFrst, unsigned char cScnd)
 }
 
 int
-onsen_is_shift_jis(const char *szMaybeShiftJIS)
+onsen_is_shift_jis(const char *maybeShiftJIS)
 {
-    int iStatus;
-    int iCount;
-    int iLen;
-    unsigned char cFirst; 
-    unsigned char cSecond; 
+    int count;
+    int len;
+    int status;
+    unsigned char first; 
+    unsigned char second; 
 
-    assert(NULL != szMaybeShiftJIS);
+    assert(NULL != maybeShiftJIS);
 
-    iStatus = 1;
-    iCount = 0;
-    iLen = strlen(szMaybeShiftJIS);
+    status = 1;
+    count = 0;
+    len = strlen(maybeShiftJIS);
 
     do {
-        cFirst = szMaybeShiftJIS[iCount];
-        cSecond = szMaybeShiftJIS[iCount + 1];
-        iStatus = onsen_are_shift_jis_bytes(cFirst, cSecond);
-        iCount++;
-    } while (!iStatus && (iCount < iLen));
+        first = maybeShiftJIS[count];
+        second = maybeShiftJIS[count + 1];
+        status = onsen_are_shift_jis_bytes(first, second);
+        count++;
+    } while (!status && (count < len));
 
-    return iStatus;
+    return status;
 }
 
 char *
-onsen_shift_jis2utf8 (iconv_t pIconv, char *szShiftJIS)
+onsen_shift_jis2utf8 (iconv_t pIconv, char *shiftJIS)
 {
+    size_t len;
     size_t rc;
-    size_t iLen;
-    size_t iUTF8len;
-    char *szUTF8tmp;
-    char *szUTF8;
-    
-    assert(NULL != pIconv);
-    assert(NULL != szShiftJIS);
+    size_t UTF8len;
+    char *UTF8;
+    char *UTF8tmp;
 
-    iLen = strlen(szShiftJIS);
-    if (!iLen) {
+    assert(NULL != pIconv);
+    assert(NULL != shiftJIS);
+
+    len = strlen(shiftJIS);
+    if (!len) {
         fprintf(stdout,"Iconv: Input string is empty.");
         return '\0';
     }
 
     /* Assign enough space to put the UTF-8 string. */
-    iUTF8len = 2*iLen;
-    szUTF8tmp = calloc(iUTF8len, 1);
-    szUTF8 = szUTF8tmp;
+    UTF8len = 2*len;
+    UTF8tmp = calloc(UTF8len, 1);
+    UTF8 = UTF8tmp;
 
-    rc = iconv(pIconv, (char **)&szShiftJIS, &iLen, &szUTF8tmp, &iUTF8len);
+    rc = iconv(pIconv, (char **)&shiftJIS, &len, &UTF8tmp, &UTF8len);
     if (-1 == (int)rc) {
-        fprintf(stderr, "Iconv: Input: '%s', length %d. Output: '%s', length %d.",
-              szShiftJIS, (int)iLen, szUTF8, (int)iUTF8len);
+        fprintf(stderr, "Iconv:");
         switch (errno) {
             case EILSEQ:
                 fprintf(stderr, "Invalid multibyte sequence encountered.");
@@ -122,8 +121,8 @@ onsen_shift_jis2utf8 (iconv_t pIconv, char *szShiftJIS)
             default:
                 fprintf(stderr, "Error: %s.", strerror(errno));
         }
-        memcpy(szUTF8, "?", iLen);
+        memcpy(UTF8, "?", len);
     }
 
-    return szUTF8;
+    return UTF8;
 }
