@@ -112,8 +112,10 @@ process_file(SnowmonkeyActionMode mode)
     if (mode == SNOWMONKEY_LIST) {
         /* Output results */
         print_info(pInfo);
-        init_print_table(pInfo);
-        print_table_header(pInfo);
+        if (context->bVerbose) {
+            init_print_table(pInfo);
+            print_table_header(pInfo);
+        }
     }
 
     for (i = 1; i <= pInfo->archiveEntriesCount; i++) {
@@ -145,7 +147,7 @@ process_file(SnowmonkeyActionMode mode)
                     if (mode == SNOWMONKEY_EXTRACT) {
                         extract_entry(instance, pEntry, szTmpFilename);
                     } else {
-                        print_entry(pEntry, szTmpFilename);
+                        print_entry(pEntry, szTmpFilename, i);
                     }
                     break;
                 }
@@ -154,7 +156,7 @@ process_file(SnowmonkeyActionMode mode)
             if (mode == SNOWMONKEY_EXTRACT) {
                 extract_entry(instance, pEntry, szTmpFilename);
             } else {
-                print_entry(pEntry, szTmpFilename);
+                print_entry(pEntry, szTmpFilename, i);
             }
         }
 
@@ -164,7 +166,9 @@ process_file(SnowmonkeyActionMode mode)
     }
 
     if (mode == SNOWMONKEY_LIST) {
-        free_print_table();
+        if (context->bVerbose) {
+            free_print_table();
+        }
     }
 
     if (pIconv != NULL) {

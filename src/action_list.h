@@ -36,6 +36,8 @@
 
 #include "globals.h"
 #include "context.h"
+#include "iconv_utils.h"
+#include "shift_jis_utils.h"
 #include <libonsen/archive_plugin.h>
 #include <libonsen/string_utils.h>
 
@@ -47,6 +49,6 @@ void free_print_table(void);
 
 void print_info(OnsenArchiveInfo_t *);
 void print_table_header(OnsenArchiveInfo_t *);
-void print_entry(OnsenArchiveEntry_t *, char *);
+void print_entry(OnsenArchiveEntry_t *, char *, int);
 
 #endif /* __SNOWMONKEY_ACTION_LIST_H */
