@@ -50,11 +50,6 @@ As superuser :
 
     # make install
 
-Homepage
---------
-
-    https://tracker.ziirish.info/projects/snowmonkey/
-
 Bug reports to
 --------------
 
