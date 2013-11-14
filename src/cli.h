@@ -39,7 +39,6 @@
 #include "context.h"
 #include <unistd.h>
 #include <ctype.h>
-#include <dirent.h>
 
 void version();
 void help();

@@ -184,7 +184,6 @@ parse_options(int argc, char *argv[])
 #endif
     char option;
     char *options = ":C:f:n:hp:P:tvx";
-    DIR  *dir;
 
     while (1) {
 
@@ -211,19 +210,7 @@ parse_options(int argc, char *argv[])
         switch (option) {
             case 'C' : {
                 if (NULL == optionOutputDir) {
-                    dir = opendir(optarg);
-                    if (dir) {
-                        closedir(dir);
-                        optionOutputDir = optarg;
-                    } else {
-                        error = 1;
-                        if (ENOENT == errno) {
-                            fprintf(stderr, "Error: Output dir '%s' ", optarg);
-                            fprintf(stderr, "does not exists.\n");
-                        } else {
-                            fprintf(stderr, "opendir() failed.\n");
-                        }
-                    }
+                    optionOutputDir = optarg;
                 } else {
                     error = 1;
                     fprintf(stderr, "Error: You can only specify one output ");
