@@ -62,6 +62,7 @@ struct _Context_s
     OnsenPlugin_t **plugins;                /* List of loaded plugins.        */
     int pluginsCount;                       /* Count of loaded plugins.       */
     int selectedPlugin;                     /* Selected plugin.               */
+    int defaultPlugin;                      /* Default working archive plugin.*/
     char *pluginsDirs;                      /* List of dirs where to look for
                                              * plugins, separated by colons.  */
     char *pluginsFilenames;                 /* List of plugins filenames to

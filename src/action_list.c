@@ -251,6 +251,7 @@ print_table_header(OnsenArchiveInfo_t *info)
             sprintf(tmformat, " %%%ds", addFieldsHeadersLen[i]);
             printf(tmformat, info->archiveEntries[0]->addlFds[i]);
         }
+        printf(" ");
         printf(filetypeFormat, "File type");
         printf(mediatypeFormat, "Media type");
         printf("%s", "  Name");
@@ -309,6 +310,7 @@ print_entry(OnsenArchiveEntry_t *entry, char *filename, int posInArchive)
             mediatype = onsen_strdup(SNOWMONKEY_DEFAULT_MEDIA_TYPE);
         }
 
+        printf(" ");
         printf(filetypeFormat, filetype);
         printf(mediatypeFormat, mediatype);
 

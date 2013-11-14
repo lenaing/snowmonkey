@@ -48,6 +48,7 @@ new_context()
     context->pluginsCount = 0;
     context->pluginsDirs = NULL;
     context->pluginsFilenames = NULL;
+    context->defaultPlugin = -1;
 
     context->action = SNOWMONKEY_LIST;
     context->verbose = 0;

@@ -63,15 +63,16 @@ extract_entry(OnsenArchivePlugin_t *instance, OnsenArchiveEntry_t *entry,
     tmpDir = dirname(tmpPath);
     if (-1 == (intptr_t)tmpDir) {
         perror(tmpDir);
-        printf("Failed to get output directory of file '%s'.\n", destFilename);
+        fprintf(stderr, "Failed to get output directory of file ");
+        fprintf(stderr, "'%s'.\n", destFilename);
         error = 1;
     }
 
     if (0 == error) {
         /* Build directory tree for this file. */
         if (0 == onsen_mkdir(tmpDir)) {
-            printf("Failed to create output directory for file '%s'.\n",
-                    destFilename);
+            fprintf(stderr, "Failed to create output directory for file ");
+            fprintf(stderr, "'%s'.\n", destFilename);
         } else {
             if (context->verbose) {
                 /* Make some space for progress indicator */

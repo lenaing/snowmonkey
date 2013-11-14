@@ -73,13 +73,13 @@ process_file(SnowmonkeyActionMode mode)
                                       context->inputFilename,
                                       file,
                                       offset)) {
-            fprintf(stdout, "|   Ouch. Plugin %s ", plugin->name);
-            fprintf(stdout, "cant handle this file. Sorry.\n");
+            fprintf(stderr, "|   Ouch. Plugin %s ", plugin->name);
+            fprintf(stderr, "cant handle this file. Sorry.\n");
             return;
         }
     }
 
-    fprintf(stdout, "|   Using plugin : %s\n", plugin->name);
+    printf("|   Using plugin : %s\n", plugin->name);
 
     /* Retrieve archive info */
     info = onsen_new_archive_info();

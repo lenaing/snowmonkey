@@ -80,7 +80,8 @@ void run()
     }
 
     if (0 == context->pluginsCount) {
-        printf("|   No plugin loaded, can't open a file without a plugin...\n");
+        fprintf(stderr, "|   No plugin loaded, can't open a file without a ");
+        fprintf(stderr, "plugin...\n");
     } else {
         if (0 == file_exists(context->inputFilename)) {
             load_file();
@@ -88,9 +89,17 @@ void run()
             if (nbPlugins > 0) {
                 if (nbPlugins > 1 && context->selectedPlugin == -1) {
                     print_available_plugins();
+                } else if (context->selectedPlugin > nbPlugins) {
+                    fprintf(stderr, "|   Invalid plugin selection.\n");
                 } else {
+                    if (nbPlugins == 1 && context->selectedPlugin == -1) {
+                        context->selectedPlugin = context->defaultPlugin;
+                    }
                     process_file(context->action);
                 }
+            } else {
+                fprintf(stderr, "|   No archive plugin loaded, can't open a ");
+                fprintf(stderr, "file without an archive plugin...\n");
             }
             unload_file();
         } else {

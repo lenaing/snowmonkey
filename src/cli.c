@@ -305,6 +305,7 @@ initialize_cli_context()
     context->pluginsFilenames = optionPluginsFilenames;
     context->pluginsDirs = optionPluginsDirs;
     context->selectedPlugin = optionSelectPlugin;
+    context->defaultPlugin = -1;
     context->action = action;
     context->verbose = optionVerbose;
 }

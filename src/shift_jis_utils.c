@@ -96,7 +96,7 @@ onsen_shift_jis2utf8 (iconv_t pIconv, char *shiftJIS)
 
     len = strlen(shiftJIS);
     if (!len) {
-        fprintf(stdout,"Iconv: Input string is empty.");
+        fprintf(stderr, "Iconv: Input string is empty.");
         return '\0';
     }
 

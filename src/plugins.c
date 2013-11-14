@@ -199,6 +199,9 @@ check_fileformat_supported_by_plugins()
                                             context->inputFilename,
                                             file,
                                             offset) > 0) {
+                if (context->defaultPlugin == -1) {
+                    context->defaultPlugin = i;
+                }
                 res++;
             }
         }
