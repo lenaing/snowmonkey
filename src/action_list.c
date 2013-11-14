@@ -185,6 +185,11 @@ init_print_table(OnsenArchiveInfo_t *info)
             if (type > 3) {
                 tmp = calloc(1, SNOWMONKEY_MAX_COLUMN_SIZE);
                 plugin->getPluginInfo(type, tmp, SNOWMONKEY_MAX_COLUMN_SIZE);
+
+                if (NULL != filetypes[i]) {
+                    free(filetypes[i]);
+                }
+
                 filetypes[i] = onsen_strdup(tmp);
                 tmpLen = strlen(tmp);
                 if (tmpLen > filetypeFormatLen) {
@@ -192,6 +197,10 @@ init_print_table(OnsenArchiveInfo_t *info)
                 }
 
                 plugin->getPluginInfo(type +2, tmp, SNOWMONKEY_MAX_COLUMN_SIZE);
+
+                if (NULL != mediatypes[i]) {
+                    free(mediatypes[i]);
+                }
                 mediatypes[i] = onsen_strdup(tmp);
                 tmpLen = strlen(tmp);
                 if (tmpLen > mediatypeFormatLen) {
