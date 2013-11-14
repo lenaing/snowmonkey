@@ -1,0 +1,14 @@
+[ For the sources ChangeLog, see the git log messages ]
+
+Version 0.2
+
+ * Basic file extraction
+ * Support for SJIS filenames
+ * List available plugins when multiple plugins can open the file
+ * Plugin selection by ID
+ * Rewrote file listing
+ * Support for file and media type
+
+Version 0.1
+
+ * Initial release
