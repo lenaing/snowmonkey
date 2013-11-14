@@ -86,10 +86,11 @@ void run()
             load_file();
             nbPlugins = check_fileformat_supported_by_plugins();
             if (nbPlugins > 0) {
-                if (nbPlugins > 1) {
+                if (nbPlugins > 1 && context->selectedPlugin == -1) {
                     print_available_plugins();
+                } else {
+                    process_file(context->action);
                 }
-                process_file(context->action);
             }
             unload_file();
         } else {

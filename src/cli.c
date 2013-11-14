@@ -39,7 +39,7 @@ int optionPrintUsage;
 int optionPrintVersion;
 int optionVerbose;
 int optionQueriedFilenamesCount;
-int optionSelectPlugin = 0;
+int optionSelectPlugin = -1;
 SnowmonkeyActionMode action;
 
 char *optionInputFilename;
@@ -184,6 +184,7 @@ parse_options(int argc, char *argv[])
 #endif
     char option;
     char *options = ":C:f:n:hp:P:tvx";
+    DIR  *dir;
 
     while (1) {
 
@@ -210,7 +211,19 @@ parse_options(int argc, char *argv[])
         switch (option) {
             case 'C' : {
                 if (NULL == optionOutputDir) {
-                    optionOutputDir = optarg;
+                    dir = opendir(optarg);
+                    if (dir) {
+                        closedir(dir);
+                        optionOutputDir = optarg;
+                    } else {
+                        error = 1;
+                        if (ENOENT == errno) {
+                            fprintf(stderr, "Error: Output dir '%s' ", optarg);
+                            fprintf(stderr, "does not exists.\n");
+                        } else {
+                            fprintf(stderr, "opendir() failed.\n");
+                        }
+                    }
                 } else {
                     error = 1;
                     fprintf(stderr, "Error: You can only specify one output ");
@@ -299,7 +312,7 @@ initialize_cli_context()
 {
     context = new_context();
     context->inputFilename = optionInputFilename;
-    context->outputDir = optionOutputDir; /* TODO Check output dir */
+    context->outputDir = optionOutputDir;
     context->queriedFilenames = optionQueriedFilenames;
     context->queriedFilenamesCount = optionQueriedFilenamesCount;
     context->pluginsFilenames = optionPluginsFilenames;

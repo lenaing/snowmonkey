@@ -73,6 +73,8 @@ process_file(SnowmonkeyActionMode mode)
                                       context->inputFilename,
                                       file,
                                       offset)) {
+            fprintf(stdout, "|   Ouch. Plugin %s ", plugin->name);
+            fprintf(stdout, "cant handle this file. Sorry.\n");
             return;
         }
     }
@@ -89,7 +91,7 @@ process_file(SnowmonkeyActionMode mode)
                                    file,
                                    info);
     if (0 == rc) {
-        if ((context->verbose)/* || (NULL == pInfo->archiveEntries[0])*/) {
+        if (context->verbose) {
             fprintf(stderr, "|   Failed to read archive info.\n");
         }
         /* Info may have been freed by plugin */

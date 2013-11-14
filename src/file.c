@@ -46,11 +46,6 @@ load_file()
         context->inputFile = onsen_new_disk_file(context->inputFilename,
                                                     ONSEN_READ_ONLY,
                                                     0);
-
-        if (NULL == context->inputFile) {
-            /* Failed to open given file.
-             * TODO */ 
-        }
     }
 }
 

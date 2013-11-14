@@ -237,6 +237,15 @@ print_available_plugins()
             }
         }
     }
-    printf("|   Selected plugin [%d] %s\n", context->selectedPlugin,
+    if (context->selectedPlugin != -1) {
+        printf("|   Selected plugin [%d] %s\n", context->selectedPlugin,
                              context->plugins[context->selectedPlugin]->name);
+    } else {
+        printf("|   Please select one of the above plugin through the ");
+        printf("-n ");
+#ifdef HAS_LONG_OPT
+        printf("or the --plugin ");
+#endif
+        printf("option to process file.\n");
+    }
 }
