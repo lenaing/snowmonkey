@@ -40,7 +40,7 @@ PROJECT(SnowMonkey)
 
 SET(SM_VERSION_MAJOR 0)
 SET(SM_VERSION_MINOR 2)
-SET(SM_VERSION_RELEASE "a")
+SET(SM_VERSION_RELEASE "b")
 
 CONFIGURE_FILE(
     "${PROJECT_SOURCE_DIR}/src/config.h.in"
@@ -69,6 +69,6 @@ SET(
 ADD_DEFINITIONS(-W -Wall -ansi -pedantic -g3)
 ADD_DEFINITIONS(-DHAS_LONG_OPT)
 ADD_EXECUTABLE(snowmonkey ${snowmonkey_SRCS})
-TARGET_LINK_LIBRARIES(snowmonkey onsen dl magic)
+TARGET_LINK_LIBRARIES(snowmonkey onsen dl)
 
 INSTALL(TARGETS snowmonkey DESTINATION bin)

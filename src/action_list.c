@@ -189,7 +189,6 @@ init_print_table(OnsenArchiveInfo_t *info)
                 if (NULL != filetypes[i]) {
                     free(filetypes[i]);
                 }
-
                 filetypes[i] = onsen_strdup(tmp);
                 tmpLen = strlen(tmp);
                 if (tmpLen > filetypeFormatLen) {
