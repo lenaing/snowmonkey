@@ -72,7 +72,7 @@ void
 version()
 {
     static char const version[] = "snowmonkey v%s.%s%s\n\
-Copyright (C) 2011, 2012 Etienne 'lenaing' Girondel.\n\
+Copyright (C) 2011, 2013 Etienne 'lenaing' Girondel.\n\
 CeCILL License:\n\
     FR : <http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt>.\n\
     EN : <http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt>.\n\
