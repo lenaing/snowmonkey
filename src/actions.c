@@ -44,7 +44,7 @@ process_file(SnowmonkeyActionMode mode)
     int rc = 0;
     int queriesCount = 0;
     long offset = 0;
-    void *file;
+    void *file = NULL;
     char *tmp = NULL;
     char *tmpFilename = NULL;
     char **queriedFilenames = NULL;

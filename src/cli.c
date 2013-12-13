@@ -71,7 +71,7 @@ char **optionQueriedFilenames;
 void
 version()
 {
-    static char const version[] = "snowmonkey v%d.%d%s\n\
+    static char const version[] = "snowmonkey v%s.%s%s\n\
 Copyright (C) 2011, 2012 Etienne 'lenaing' Girondel.\n\
 CeCILL License:\n\
     FR : <http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt>.\n\
@@ -129,7 +129,8 @@ Examples:\n\
  Device selection and switching:\n\n\
   -f                         Use given archive file or device.\n\n\
  Local file selection:\n\n\
-  -C                         Output to given directory.\n\n\
+  -C                         Output to given directory.\n\n";
+    static char const helpOptions2[] = "\
  Plugins selection:\n\n\
   -n                         Select plugin ID.\n\
   -p                         Load plugins only if they match specified\n\
@@ -145,8 +146,8 @@ Examples:\n\
     static char const helpEnd[] = "Report bugs to <lenaing@gmail.com>.\n";
     fprintf(stderr, help);
     fprintf(stderr, helpOptions);
-#ifdef HAS_LONG_OPT
     fprintf(stderr, helpOptions2);
+#ifdef HAS_LONG_OPT
     fprintf(stderr, helpOptions3);
 #endif
     fprintf(stderr, helpEnd);

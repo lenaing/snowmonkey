@@ -51,7 +51,7 @@ void start()
 
     if (context->verbose) {
         printf("            @(⌒⌒ )@            \n\n");
-        printf("       Snow Monkey v%d.%d%s      \n",
+        printf("       Snow Monkey v%s.%s%s      \n",
                         SM_VERSION_MAJOR,
                         SM_VERSION_MINOR,
                         SM_VERSION_RELEASE);
