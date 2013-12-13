@@ -246,7 +246,7 @@ print_available_plugins()
     } else {
         printf("|   Please select one of the above plugin through the ");
         printf("-n ");
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
         printf("or the --plugin ");
 #endif
         printf("option to process file.\n");

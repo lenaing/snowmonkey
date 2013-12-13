@@ -48,7 +48,7 @@ char *optionPluginsFilenames;
 char *optionPluginsDirs;
 char **optionQueriedFilenames;
 
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
     #include <getopt.h>
 
     static struct option longOptions[] = {
@@ -98,7 +98,7 @@ Examples:\n\
   snowmonkey -xf archive.dat\t# Extract all files from archive.dat.\n\n";
 
     /* Help on options. */
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
     static char const helpOptions[] = "\
  Main operation mode:\n\n\
   -t, --list                 List the contents of an archive.\n\
@@ -147,7 +147,7 @@ Examples:\n\
     fprintf(stderr, help);
     fprintf(stderr, helpOptions);
     fprintf(stderr, helpOptions2);
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
     fprintf(stderr, helpOptions3);
 #endif
     fprintf(stderr, helpEnd);
@@ -159,7 +159,7 @@ usage()
     static char const optionsUsage[] = "\
 Usage: snowmonkey [-txhv?] [-f ARCHIVE] [FILES]\n\
             [-C DIR] [-n ID]\n";
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
     static char const longOptionsUsage[] = "\
             [--file]\n\
             [--verbose]\n\
@@ -168,7 +168,7 @@ Usage: snowmonkey [-txhv?] [-f ARCHIVE] [FILES]\n\
             [--help] [--usage] [--version]\n";
 #endif
     fprintf(stderr, optionsUsage);
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
     fprintf(stderr, longOptionsUsage);
 #endif
 }
@@ -180,7 +180,7 @@ parse_options(int argc, char *argv[])
     int i;
     int mainOperationModeArgs = 0;
     int error = 0;
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
     int optionIndex = 0;
 #endif
     char option;
@@ -188,7 +188,7 @@ parse_options(int argc, char *argv[])
 
     while (1) {
 
-#ifdef HAS_LONG_OPT
+#ifdef HAVE_GETOPT_LONG
         option = getopt_long(argc, argv, options, longOptions, &optionIndex);
 #else
         option = getopt(argc, argv, options);

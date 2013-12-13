@@ -34,6 +34,7 @@
 #ifndef __SNOWMONKEY_CLI_H
 #define __SNOWMONKEY_CLI_H
 
+#include "../config.h"
 #include "version.h"
 #include "globals.h"
 #include "context.h"

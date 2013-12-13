@@ -62,6 +62,8 @@ dnl --------------------------------------------
 AC_CHECK_LIB([onsen], onsen_init, , [AC_MSG_ERROR([You must have libonsen-dev installed])])
 
 
+AC_CHECK_FUNCS([getopt_long], , AC_DEFINE([HAVE_GETOPT_LONG]))
+
 dnl --------------------------------------------
 dnl Output files
 dnl --------------------------------------------
