@@ -43,11 +43,13 @@ dnl --------------------------------------------
 dnl Versioning
 dnl --------------------------------------------
 SM_VERSION_MAJOR=0
-SM_VERSION_MINOR=2
+SM_VERSION_MINOR=3
 SM_VERSION_RELEASE=b
 AC_SUBST(SM_VERSION_MAJOR)
 AC_SUBST(SM_VERSION_MINOR)
 AC_SUBST(SM_VERSION_RELEASE)
+SM_VERSION="$SM_VERSION_MAJOR.$SM_VERSION_MINOR$SM_VERSION_RELEASE"
+AC_SUBST(SM_VERSION)
 
 dnl Checks for programs
 dnl --------------------------------------------
@@ -72,5 +74,6 @@ AC_CONFIG_FILES([
     Makefile
     src/Makefile
     src/version.h
+    man/Makefile
 ])
 AC_OUTPUT

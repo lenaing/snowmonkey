@@ -1,0 +1,67 @@
+=head1 NAME
+
+snowmonkey - A tool that list or restore individual files from a disk archive.
+
+=head1 SYNOPSIS
+
+B<snowmonkey> [I<OPTIONS>...] [I<FILES>]...
+
+=head1 OPTIONS
+
+=head2 Main operation mode:
+
+B<-t>, B<--list>              List the contents of an archive.
+
+B<-x>, B<--extract>, B<--get>    Extract files from an archive.
+
+=head2 Device selection and switching:
+
+B<-f>, B<--file>=I<ARCHIVE>      Use archive file or device I<ARCHIVE>.
+
+=head2 Local file selection:
+
+B<-C>, B<--directory>=<DIR>   Output to directory I<DIR>.
+
+=head2 Plugins selection:
+
+B<-n> I<noID>, B<--plugin> I<noID>            Select plugin ID I<noID>.
+
+B<-p>, B<--plugins>           Load plugins only if they match specified filenames.
+
+B<-P>, B<--plugins-dir>       Search plugins only in specified directories.
+
+=head2 Informative output:
+
+B<-v>, B<--verbose>           Verbosely list files processed.
+
+=head2 Other options:
+
+B<-h>, B<-?>, B<--help>          Give this help list.
+        B<--usage>         Give a short usage message.
+        B<--version>       Print program version.
+
+=head1 Examples
+
+# List all files in archive.dat verbosely.
+
+    snowmonkey -tvf archive.dat
+
+# Extract all files from archive.dat.
+
+    snowmonkey -xf archive.dat
+
+# Extract file with filename 'afilename' from archive.dat.
+
+    snowmonkey -xf archive.dat afilename 
+
+=head1 SEE ALSO
+
+Website: http://www.lenain.info/projects/snowmonkey
+
+=head1 AUTHOR
+
+Etienne 'lenaing' GIRONDEL <lenaing@gmail.com>
+
+=head1 BUGS
+
+Please report bugs to the author !
