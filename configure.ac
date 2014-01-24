@@ -32,11 +32,10 @@
 # knowledge of the CeCILL license and that you accept its terms.
 #
 
-AC_INIT([snowmonkey], [0.2], [lenaing@gmail.com])
+AC_INIT([snowmonkey], [0.3], [lenaing@gmail.com])
 AC_PREREQ([2.69])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 
 dnl --------------------------------------------
@@ -51,18 +50,15 @@ AC_SUBST(SM_VERSION_RELEASE)
 SM_VERSION="$SM_VERSION_MAJOR.$SM_VERSION_MINOR$SM_VERSION_RELEASE"
 AC_SUBST(SM_VERSION)
 
+dnl --------------------------------------------
 dnl Checks for programs
 dnl --------------------------------------------
 AC_PROG_CC
-AC_PROG_CC_C_O
 
-PKG_PROG_PKG_CONFIG
-
-
+dnl --------------------------------------------
 dnl Checks for libraries
 dnl --------------------------------------------
 AC_CHECK_LIB([onsen], onsen_init, , [AC_MSG_ERROR([You must have libonsen-dev installed])])
-
 
 AC_CHECK_FUNCS([getopt_long], , AC_DEFINE([HAVE_GETOPT_LONG]))
 

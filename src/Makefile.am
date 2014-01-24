@@ -35,20 +35,18 @@ bin_PROGRAMS = snowmonkey
 
 snowmonkey_CFLAGS = -W -Wall -ansi -pedantic -g3
 snowmonkey_SOURCES = \
-    action_extract.c action_extract.h \
-    action_list.c action_list.h \
-    actions.c actions.h \
-    cli.c cli.h \
-    constants.h \
-    context.c context.h \
-    datafiles.c datafiles.h \
-    file.c file.h \
-    freedesktop.c freedesktop.h \
-    globals.h \
+    action_extract.c \
+    action_list.c \
+    actions.c \
+    cli.c \
+    context.c \
+    datafiles.c \
+    file.c \
+    freedesktop.c \
     iconv_utils.c \
-    main.c iconv_utils.h \
-    plugins.c plugins.h \
-    progress.c progress.h \
-    shift_jis_utils.c shift_jis_utils.h
+    main.c \
+    plugins.c \
+    progress.c \
+    shift_jis_utils.c
 
 snowmonkey_LDFLAGS = -ldl -lonsen
